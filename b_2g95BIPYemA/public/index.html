@@ -30,6 +30,7 @@
                         </svg>
                         <input type="text" id="username" name="username" placeholder="أدخل اسم المستخدم" required>
                     </div>
+                    <small class="form-hint">للتجربة: admin, doctor, nurse, engineer, inventory</small>
                 </div>
                 
                 <div class="form-group">
@@ -47,6 +48,7 @@
                             </svg>
                         </button>
                     </div>
+                    <small class="form-hint">كلمة المرور الافتراضية: admin123 أو doctor123</small>
                 </div>
                 
                 <div class="form-group">
@@ -58,17 +60,17 @@
                             <path d="M22 21v-2a4 4 0 0 0-3-3.87"/>
                             <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
                         </svg>
-                        <select id="role" name="role" required>
+                        <select id="role" name="role" required onchange="updateDepartmentOptions()">
                             <option value="">اختر الدور الوظيفي</option>
-                            <option value="medical_staff">الطاقم الطبي</option>
-                            <option value="engineer">مهندس الصيانة</option>
-                            <option value="admin">مدير النظام</option>
-                            <option value="inventory_manager">مدير المخزون</option>
+                            <option value="admin">مدير النظام (Admin)</option>
+                            <option value="medical_staff">الطاقم الطبي (Staff)</option>
+                            <option value="engineer">مهندس الصيانة (Engineer)</option>
+                            <option value="inventory_manager">أمين المخزون (Inventory)</option>
                         </select>
                     </div>
                 </div>
                 
-                <div class="form-group">
+                <div class="form-group" id="departmentGroup">
                     <label for="department">القسم</label>
                     <div class="input-wrapper">
                         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -93,7 +95,6 @@
                         <span class="checkmark"></span>
                         تذكرني
                     </label>
-                    <a href="#" class="forgot-password">نسيت كلمة المرور؟</a>
                 </div>
                 
                 <button type="submit" class="btn btn-primary btn-block">
@@ -106,8 +107,32 @@
                 </button>
             </form>
             
+            <!-- Demo Accounts Info -->
+            <div class="demo-accounts">
+                <h4>حسابات تجريبية</h4>
+                <div class="demo-accounts-grid">
+                    <div class="demo-account" onclick="fillDemoAccount('admin', 'admin123', 'admin', 'all')">
+                        <span class="demo-role">مدير</span>
+                        <span class="demo-user">admin</span>
+                    </div>
+                    <div class="demo-account" onclick="fillDemoAccount('doctor', 'doctor123', 'medical_staff', 'cardiology')">
+                        <span class="demo-role">طبيب</span>
+                        <span class="demo-user">doctor</span>
+                    </div>
+                    <div class="demo-account" onclick="fillDemoAccount('engineer', 'eng123', 'engineer', 'all')">
+                        <span class="demo-role">مهندس</span>
+                        <span class="demo-user">engineer</span>
+                    </div>
+                    <div class="demo-account" onclick="fillDemoAccount('inventory', 'inv123', 'inventory_manager', 'all')">
+                        <span class="demo-role">مخزون</span>
+                        <span class="demo-user">inventory</span>
+                    </div>
+                </div>
+            </div>
+            
             <div class="login-footer">
-                <p>جميع الحقوق محفوظة &copy; 2024 SMEMS</p>
+                <p>مستشفى النموذجي - نظام إدارة المعدات الطبية</p>
+                <p>جميع الحقوق محفوظة 2024 SMEMS</p>
             </div>
         </div>
         
@@ -120,34 +145,153 @@
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <polyline points="20 6 9 17 4 12"/>
                         </svg>
-                        <span>تتبع حالة المعدات الطبية</span>
+                        <span>تتبع حالة المعدات الطبية في الوقت الفعلي</span>
                     </li>
                     <li>
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <polyline points="20 6 9 17 4 12"/>
                         </svg>
-                        <span>إدارة طلبات الصيانة</span>
+                        <span>إدارة طلبات الصيانة الوقائية والتصحيحية</span>
                     </li>
                     <li>
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <polyline points="20 6 9 17 4 12"/>
                         </svg>
-                        <span>مراقبة المخزون والقطع</span>
+                        <span>مراقبة المخزون والقطع مع تنبيهات النقص</span>
                     </li>
                     <li>
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <polyline points="20 6 9 17 4 12"/>
                         </svg>
-                        <span>تقارير وتحليلات شاملة</span>
+                        <span>تقارير وتحليلات شاملة مع تصدير PDF/Excel</span>
+                    </li>
+                    <li>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="20 6 9 17 4 12"/>
+                        </svg>
+                        <span>نظام إشعارات وتنبيهات ذكي</span>
                     </li>
                 </ul>
+                
+                <div class="info-stats">
+                    <div class="info-stat">
+                        <span class="stat-number">12+</span>
+                        <span class="stat-label">جهاز طبي</span>
+                    </div>
+                    <div class="info-stat">
+                        <span class="stat-number">6</span>
+                        <span class="stat-label">أقسام</span>
+                    </div>
+                    <div class="info-stat">
+                        <span class="stat-number">4</span>
+                        <span class="stat-label">أدوار مستخدم</span>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
     
     <div id="toast" class="toast"></div>
     
+    <script src="data.js"></script>
     <script src="apiService.js"></script>
-    <script src="script.js"></script>
+    <script>
+        // Check if already logged in
+        document.addEventListener('DOMContentLoaded', function() {
+            if (AuthAPI.isAuthenticated()) {
+                window.location.href = 'dashboard.html';
+            }
+        });
+
+        function togglePassword() {
+            const passwordInput = document.getElementById('password');
+            const eyeIcon = document.querySelector('.toggle-password .eye-icon');
+            
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+            } else {
+                passwordInput.type = 'password';
+            }
+        }
+
+        function updateDepartmentOptions() {
+            const role = document.getElementById('role').value;
+            const departmentGroup = document.getElementById('departmentGroup');
+            const departmentSelect = document.getElementById('department');
+            
+            // Admin, Engineer, and Inventory Manager have access to all departments
+            if (role === 'admin' || role === 'engineer' || role === 'inventory_manager') {
+                departmentSelect.innerHTML = '<option value="all">جميع الأقسام</option>';
+                departmentSelect.value = 'all';
+                departmentGroup.style.display = 'none';
+            } else {
+                departmentSelect.innerHTML = `
+                    <option value="">اختر القسم</option>
+                    <option value="cardiology">قسم القلب</option>
+                    <option value="radiology">قسم الأشعة</option>
+                    <option value="icu">العناية المركزة</option>
+                    <option value="emergency">الطوارئ</option>
+                    <option value="surgery">الجراحة</option>
+                    <option value="laboratory">المختبر</option>
+                `;
+                departmentGroup.style.display = 'block';
+            }
+        }
+
+        function fillDemoAccount(username, password, role, department) {
+            document.getElementById('username').value = username;
+            document.getElementById('password').value = password;
+            document.getElementById('role').value = role;
+            updateDepartmentOptions();
+            document.getElementById('department').value = department;
+            
+            showToast('تم ملء بيانات الحساب التجريبي', 'success');
+        }
+
+        function showToast(message, type = 'info') {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.className = `toast ${type} show`;
+            
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+
+        // Login form handler
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const role = document.getElementById('role').value;
+            const department = document.getElementById('department').value;
+            
+            if (!username || !password || !role || !department) {
+                showToast('يرجى ملء جميع الحقول', 'error');
+                return;
+            }
+            
+            const submitBtn = this.querySelector('button[type="submit"]');
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<span class="spinner" style="width:20px;height:20px;border-width:2px;"></span>';
+            
+            // Simulate login delay
+            setTimeout(() => {
+                const result = AuthAPI.login(username, password, role, department);
+                
+                if (result.success) {
+                    showToast('تم تسجيل الدخول بنجاح', 'success');
+                    setTimeout(() => {
+                        window.location.href = 'dashboard.html';
+                    }, 500);
+                } else {
+                    showToast(result.message || 'فشل تسجيل الدخول', 'error');
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = '<span>تسجيل الدخول</span><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" x2="3" y1="12" y2="12"/></svg>';
+                }
+            }, 500);
+        });
+    </script>
 </body>
 </html>

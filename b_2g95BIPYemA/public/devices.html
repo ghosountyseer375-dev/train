@@ -5,67 +5,132 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>الأجهزة الطبية - SMEMS</title>
     <link rel="stylesheet" href="style.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
-    <div class="app-container">
+    <div class="dashboard-layout">
         <!-- Sidebar -->
         <aside class="sidebar" id="sidebar">
             <div class="sidebar-header">
-                <div class="logo">
-                    <i class="fas fa-heartbeat"></i>
-                    <span>SMEMS</span>
+                <div class="sidebar-logo">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
+                    </svg>
                 </div>
-                <button class="sidebar-toggle" id="sidebarToggle">
-                    <i class="fas fa-bars"></i>
-                </button>
+                <div class="sidebar-brand">
+                    <h2>SMEMS</h2>
+                    <span>إدارة المعدات الطبية</span>
+                </div>
             </div>
-            <nav class="sidebar-nav" id="sidebarNav">
-                <!-- سيتم ملؤها ديناميكياً -->
-            </nav>
+            <nav class="sidebar-nav" id="sidebarNav"></nav>
             <div class="sidebar-footer">
                 <div class="user-info">
-                    <div class="user-avatar" id="userAvatar">م</div>
+                    <div class="user-avatar" id="sidebarUserAvatar">م</div>
                     <div class="user-details">
-                        <span class="user-name" id="userName">المستخدم</span>
-                        <span class="user-role" id="userRole">الدور</span>
+                        <h4 id="sidebarUserName">اسم المستخدم</h4>
+                        <span id="sidebarUserRole">القسم</span>
                     </div>
                 </div>
-                <button class="logout-btn" onclick="logout()">
-                    <i class="fas fa-sign-out-alt"></i>
-                    <span>تسجيل الخروج</span>
-                </button>
             </div>
         </aside>
-
+        
         <!-- Main Content -->
         <main class="main-content">
             <!-- Header -->
-            <header class="main-header">
+            <header class="header">
                 <div class="header-right">
-                    <button class="mobile-menu-btn" id="mobileMenuBtn">
-                        <i class="fas fa-bars"></i>
+                    <button class="menu-toggle" id="menuToggle">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="4" x2="20" y1="12" y2="12"/>
+                            <line x1="4" x2="20" y1="6" y2="6"/>
+                            <line x1="4" x2="20" y1="18" y2="18"/>
+                        </svg>
                     </button>
-                    <h1 class="page-title">
-                        <i class="fas fa-laptop-medical"></i>
-                        الأجهزة الطبية
-                    </h1>
-                </div>
-                <div class="header-left">
-                    <div class="search-box">
-                        <i class="fas fa-search"></i>
-                        <input type="text" id="searchDevices" placeholder="البحث عن جهاز...">
+                    <div class="header-info">
+                        <h1>الأجهزة الطبية</h1>
+                        <p id="deviceCount">0 جهاز</p>
                     </div>
-                    <button class="notification-btn" id="notificationBtn">
-                        <i class="fas fa-bell"></i>
-                        <span class="notification-badge" id="notificationBadge">0</span>
-                    </button>
+                </div>
+                
+                <div class="header-left">
+                    <div class="notifications-wrapper">
+                        <button class="btn btn-ghost btn-icon notification-btn" id="notificationBtn">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/>
+                                <path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/>
+                            </svg>
+                            <span class="notification-badge" id="notificationBadge">0</span>
+                        </button>
+                        <div class="notifications-dropdown" id="notificationsDropdown">
+                            <div class="notifications-header">
+                                <h3>الإشعارات</h3>
+                                <button class="btn btn-ghost btn-sm" onclick="markAllNotificationsRead()">تحديد الكل كمقروء</button>
+                            </div>
+                            <div class="notifications-list" id="notificationsList"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="user-dropdown">
+                        <div class="header-user" id="userDropdownBtn">
+                            <div class="header-user-info">
+                                <h4 id="userName">اسم المستخدم</h4>
+                                <span id="userRole">الدور</span>
+                            </div>
+                            <div class="header-user-avatar" id="userAvatar">م</div>
+                        </div>
+                        <div class="user-dropdown-menu" id="userDropdownMenu">
+                            <div class="dropdown-item" onclick="logout()">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+                                تسجيل الخروج
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </header>
-
-            <!-- Content Area -->
-            <div class="content-area">
-                <!-- Filters Section -->
+            
+            <!-- Page Content -->
+            <div class="page-content">
+                <!-- Stats Cards -->
+                <div class="kpi-grid">
+                    <div class="kpi-card">
+                        <div class="kpi-icon primary">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+                        </div>
+                        <div class="kpi-content">
+                            <h3 id="totalDevices">0</h3>
+                            <p>إجمالي الأجهزة</p>
+                        </div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-icon success">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                        </div>
+                        <div class="kpi-content">
+                            <h3 id="operationalDevices">0</h3>
+                            <p>تعمل</p>
+                        </div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-icon warning">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
+                        </div>
+                        <div class="kpi-content">
+                            <h3 id="maintenanceDevices">0</h3>
+                            <p>تحت الصيانة</p>
+                        </div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-icon danger">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                        </div>
+                        <div class="kpi-content">
+                            <h3 id="outOfServiceDevices">0</h3>
+                            <p>خارج الخدمة</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Filters -->
                 <div class="filters-section">
                     <div class="filter-group">
                         <label>القسم:</label>
@@ -74,150 +139,130 @@
                         </select>
                     </div>
                     <div class="filter-group">
-                        <label>حالة الجهاز:</label>
+                        <label>الحالة:</label>
                         <select id="filterStatus">
                             <option value="">جميع الحالات</option>
-                            <option value="working">يعمل</option>
+                            <option value="operational">يعمل</option>
                             <option value="maintenance">تحت الصيانة</option>
-                            <option value="broken">معطل</option>
-                            <option value="reserved">محجوز</option>
+                            <option value="out_of_service">خارج الخدمة</option>
                         </select>
                     </div>
                     <div class="filter-group">
-                        <label>النوع:</label>
-                        <select id="filterType">
-                            <option value="">جميع الأنواع</option>
+                        <label>مستوى الخطورة:</label>
+                        <select id="filterRiskLevel">
+                            <option value="">الكل</option>
+                            <option value="critical">حرج</option>
+                            <option value="high">عالي</option>
+                            <option value="medium">متوسط</option>
+                            <option value="low">منخفض</option>
                         </select>
                     </div>
-                    <button class="btn btn-secondary" onclick="resetFilters()">
-                        <i class="fas fa-redo"></i>
-                        إعادة تعيين
-                    </button>
-                </div>
-
-                <!-- Stats Cards -->
-                <div class="stats-grid">
-                    <div class="stat-card stat-total">
-                        <div class="stat-icon">
-                            <i class="fas fa-laptop-medical"></i>
-                        </div>
-                        <div class="stat-info">
-                            <span class="stat-value" id="totalDevices">0</span>
-                            <span class="stat-label">إجمالي الأجهزة</span>
-                        </div>
-                    </div>
-                    <div class="stat-card stat-working">
-                        <div class="stat-icon">
-                            <i class="fas fa-check-circle"></i>
-                        </div>
-                        <div class="stat-info">
-                            <span class="stat-value" id="workingDevices">0</span>
-                            <span class="stat-label">تعمل</span>
-                        </div>
-                    </div>
-                    <div class="stat-card stat-maintenance">
-                        <div class="stat-icon">
-                            <i class="fas fa-tools"></i>
-                        </div>
-                        <div class="stat-info">
-                            <span class="stat-value" id="maintenanceDevices">0</span>
-                            <span class="stat-label">تحت الصيانة</span>
-                        </div>
-                    </div>
-                    <div class="stat-card stat-broken">
-                        <div class="stat-icon">
-                            <i class="fas fa-exclamation-triangle"></i>
-                        </div>
-                        <div class="stat-info">
-                            <span class="stat-value" id="brokenDevices">0</span>
-                            <span class="stat-label">معطلة</span>
-                        </div>
+                    <div class="search-box">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                        <input type="text" id="searchDevices" placeholder="بحث عن جهاز...">
                     </div>
                 </div>
-
-                <!-- View Toggle -->
-                <div class="view-controls">
-                    <div class="view-toggle">
-                        <button class="view-btn active" data-view="grid" onclick="setView('grid')">
-                            <i class="fas fa-th-large"></i>
-                        </button>
-                        <button class="view-btn" data-view="list" onclick="setView('list')">
-                            <i class="fas fa-list"></i>
-                        </button>
+                
+                <!-- Devices Table -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">قائمة الأجهزة</h3>
+                        <div class="view-toggle">
+                            <button class="btn btn-ghost btn-sm active" onclick="setView('table')" id="tableViewBtn">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+                            </button>
+                            <button class="btn btn-ghost btn-sm" onclick="setView('grid')" id="gridViewBtn">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+                            </button>
+                        </div>
                     </div>
-                    <div class="results-count">
-                        <span id="resultsCount">0</span> جهاز
+                    <div class="card-body" id="devicesContainer">
+                        <!-- Table View -->
+                        <div class="table-wrapper" id="tableView">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>الرقم</th>
+                                        <th>اسم الجهاز</th>
+                                        <th>الشركة المصنعة</th>
+                                        <th>الموديل</th>
+                                        <th>القسم</th>
+                                        <th>الموقع</th>
+                                        <th>الحالة</th>
+                                        <th>مستوى الخطورة</th>
+                                        <th>الإجراءات</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="devicesTableBody">
+                                    <!-- Devices will be loaded here -->
+                                </tbody>
+                            </table>
+                        </div>
+                        
+                        <!-- Grid View -->
+                        <div class="devices-grid" id="gridView" style="display: none;">
+                            <!-- Devices cards will be loaded here -->
+                        </div>
+                        
+                        <!-- Empty State -->
+                        <div class="empty-state" id="emptyState" style="display: none;">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+                            <h3>لا توجد أجهزة</h3>
+                            <p>لم يتم العثور على أجهزة تطابق معايير البحث</p>
+                        </div>
                     </div>
-                </div>
-
-                <!-- Devices Grid -->
-                <div class="devices-container" id="devicesContainer">
-                    <div class="devices-grid" id="devicesGrid">
-                        <!-- سيتم ملؤها ديناميكياً -->
-                    </div>
-                </div>
-
-                <!-- Loading State -->
-                <div class="loading-state" id="loadingState" style="display: none;">
-                    <div class="spinner"></div>
-                    <p>جاري تحميل الأجهزة...</p>
-                </div>
-
-                <!-- Empty State -->
-                <div class="empty-state" id="emptyState" style="display: none;">
-                    <i class="fas fa-laptop-medical"></i>
-                    <h3>لا توجد أجهزة</h3>
-                    <p>لم يتم العثور على أجهزة تطابق معايير البحث</p>
                 </div>
             </div>
         </main>
     </div>
-
+    
     <!-- Device Details Modal -->
     <div class="modal" id="deviceModal">
         <div class="modal-content modal-lg">
             <div class="modal-header">
-                <h2 id="modalTitle">تفاصيل الجهاز</h2>
+                <h2 id="deviceModalTitle">تفاصيل الجهاز</h2>
                 <button class="modal-close" onclick="closeModal('deviceModal')">
-                    <i class="fas fa-times"></i>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
                 </button>
             </div>
             <div class="modal-body" id="deviceModalBody">
-                <!-- سيتم ملؤه ديناميكياً -->
+                <!-- Device details will be loaded here -->
             </div>
         </div>
     </div>
-
-    <!-- Report Issue Modal -->
-    <div class="modal" id="reportModal">
+    
+    <!-- Maintenance Request Modal -->
+    <div class="modal" id="maintenanceRequestModal">
         <div class="modal-content">
             <div class="modal-header">
-                <h2>الإبلاغ عن عطل</h2>
-                <button class="modal-close" onclick="closeModal('reportModal')">
-                    <i class="fas fa-times"></i>
+                <h2>طلب صيانة</h2>
+                <button class="modal-close" onclick="closeModal('maintenanceRequestModal')">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
                 </button>
             </div>
             <div class="modal-body">
-                <form id="reportForm" onsubmit="submitReport(event)">
-                    <input type="hidden" id="reportDeviceId">
+                <form id="maintenanceRequestForm" onsubmit="submitMaintenanceRequest(event)">
+                    <input type="hidden" id="requestDeviceId">
                     <div class="form-group">
                         <label>الجهاز</label>
-                        <input type="text" id="reportDeviceName" readonly>
+                        <input type="text" id="requestDeviceName" class="form-control" readonly>
                     </div>
                     <div class="form-group">
                         <label>نوع المشكلة <span class="required">*</span></label>
-                        <select id="reportType" required>
+                        <select id="requestIssueType" class="form-control" required>
                             <option value="">اختر نوع المشكلة</option>
                             <option value="malfunction">خلل في التشغيل</option>
                             <option value="damage">تلف مادي</option>
                             <option value="calibration">يحتاج معايرة</option>
                             <option value="software">مشكلة برمجية</option>
+                            <option value="electrical">مشكلة كهربائية</option>
+                            <option value="mechanical">مشكلة ميكانيكية</option>
                             <option value="other">أخرى</option>
                         </select>
                     </div>
                     <div class="form-group">
                         <label>الأولوية <span class="required">*</span></label>
-                        <select id="reportPriority" required>
+                        <select id="requestPriority" class="form-control" required>
                             <option value="low">منخفضة</option>
                             <option value="medium" selected>متوسطة</option>
                             <option value="high">عالية</option>
@@ -225,542 +270,380 @@
                         </select>
                     </div>
                     <div class="form-group">
+                        <label>هل يوجد جهاز بديل؟</label>
+                        <select id="requestAlternative" class="form-control">
+                            <option value="yes">نعم</option>
+                            <option value="no">لا</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
                         <label>وصف المشكلة <span class="required">*</span></label>
-                        <textarea id="reportDescription" rows="4" required placeholder="صف المشكلة بالتفصيل..."></textarea>
+                        <textarea id="requestDescription" class="form-control" rows="4" required placeholder="صف المشكلة بالتفصيل..."></textarea>
                     </div>
-                    <div class="form-actions">
-                        <button type="button" class="btn btn-secondary" onclick="closeModal('reportModal')">إلغاء</button>
-                        <button type="submit" class="btn btn-danger">
-                            <i class="fas fa-exclamation-circle"></i>
-                            إرسال البلاغ
-                        </button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-
-    <!-- Reserve Device Modal -->
-    <div class="modal" id="reserveModal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2>حجز الجهاز</h2>
-                <button class="modal-close" onclick="closeModal('reserveModal')">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-            <div class="modal-body">
-                <form id="reserveForm" onsubmit="submitReservation(event)">
-                    <input type="hidden" id="reserveDeviceId">
-                    <div class="form-group">
-                        <label>الجهاز</label>
-                        <input type="text" id="reserveDeviceName" readonly>
-                    </div>
-                    <div class="form-group">
-                        <label>تاريخ البداية <span class="required">*</span></label>
-                        <input type="datetime-local" id="reserveStartDate" required>
-                    </div>
-                    <div class="form-group">
-                        <label>تاريخ النهاية <span class="required">*</span></label>
-                        <input type="datetime-local" id="reserveEndDate" required>
-                    </div>
-                    <div class="form-group">
-                        <label>سبب الحجز <span class="required">*</span></label>
-                        <textarea id="reserveReason" rows="3" required placeholder="حدد سبب الحجز..."></textarea>
-                    </div>
-                    <div class="form-actions">
-                        <button type="button" class="btn btn-secondary" onclick="closeModal('reserveModal')">إلغاء</button>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" onclick="closeModal('maintenanceRequestModal')">إلغاء</button>
                         <button type="submit" class="btn btn-primary">
-                            <i class="fas fa-calendar-check"></i>
-                            تأكيد الحجز
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+                            إرسال الطلب
                         </button>
                     </div>
                 </form>
             </div>
         </div>
     </div>
-
-    <!-- Notifications Panel -->
-    <div class="notifications-panel" id="notificationsPanel">
-        <div class="notifications-header">
-            <h3>الإشعارات</h3>
-            <button class="mark-all-read" onclick="markAllAsRead()">تحديد الكل كمقروء</button>
-        </div>
-        <div class="notifications-list" id="notificationsList">
-            <!-- سيتم ملؤها ديناميكياً -->
-        </div>
-    </div>
-
+    
+    <div id="toast" class="toast"></div>
+    
+    <script src="data.js"></script>
     <script src="apiService.js"></script>
     <script src="script.js"></script>
     <script>
-        // Initialize page
+        let currentView = 'table';
+        let allDevices = [];
+        let filteredDevices = [];
+        const currentUser = AuthAPI.getCurrentUser();
+
         document.addEventListener('DOMContentLoaded', function() {
-            checkAuth();
+            if (!checkAuth()) return;
             initializeSidebar();
+            setupEventListeners();
+            loadNotifications();
             loadDevices();
             loadFilters();
-            setupEventListeners();
-            setupPermissions();
         });
 
-        let currentView = 'grid';
-        let allDevices = [];
-        const currentUser = JSON.parse(sessionStorage.getItem('currentUser') || '{}');
-
-        function setupPermissions() {
-            // Hide add device button for non-admin users
-            const addDeviceBtn = document.querySelector('.btn.btn-primary[onclick*="addDevice"]');
-            if (addDeviceBtn && !['admin'].includes(currentUser.role)) {
-                addDeviceBtn.style.display = 'none';
-            }
-        }
-
-        function setupEventListeners() {
-            // Search
-            document.getElementById('searchDevices').addEventListener('input', debounce(filterDevices, 300));
+        function loadFilters() {
+            const departmentSelect = document.getElementById('filterDepartment');
             
-            // Filters
-            document.getElementById('filterDepartment').addEventListener('change', filterDevices);
-            document.getElementById('filterStatus').addEventListener('change', filterDevices);
-            document.getElementById('filterType').addEventListener('change', filterDevices);
-        }
-
-        async function loadFilters() {
-            try {
-                const departments = await apiService.getDepartments();
-                const departmentSelect = document.getElementById('filterDepartment');
-                departments.forEach(dept => {
-                    const option = document.createElement('option');
-                    option.value = dept.id;
-                    option.textContent = dept.name;
-                    departmentSelect.appendChild(option);
-                });
-
-                const types = await apiService.getDeviceTypes();
-                const typeSelect = document.getElementById('filterType');
-                types.forEach(type => {
-                    const option = document.createElement('option');
-                    option.value = type.id;
-                    option.textContent = type.name;
-                    typeSelect.appendChild(option);
-                });
-            } catch (error) {
-                console.error('Error loading filters:', error);
+            // Filter departments based on user role
+            let departments = DEPARTMENTS.filter(d => d.id !== 'all');
+            
+            // If medical staff, only show their department
+            if (currentUser.role === 'medical_staff' && currentUser.department !== 'all') {
+                departments = departments.filter(d => d.id === currentUser.department);
             }
+            
+            departments.forEach(dept => {
+                const option = document.createElement('option');
+                option.value = dept.id;
+                option.textContent = dept.name;
+                departmentSelect.appendChild(option);
+            });
         }
 
-        async function loadDevices() {
-            showLoading(true);
-            try {
-                let devices = JSON.parse(localStorage.getItem('devices') || '[]');
-                
-                // Filter devices based on user role
-                if (currentUser.role === 'medical_staff') {
-                    // Staff sees only their department's devices
-                    devices = devices.filter(d => d.department === currentUser.department);
-                }
-                // Admin, Engineer, and Inventory Manager see all devices
-                
-                allDevices = devices.map(d => ({
-                    ...d,
-                    departmentName: getDepartmentText(d.department)
-                }));
-                
-                updateStats(allDevices);
-                renderDevices(allDevices);
-            } catch (error) {
-                showToast('خطأ في تحميل الأجهزة', 'error');
-            } finally {
-                showLoading(false);
+        function loadDevices() {
+            // Get devices based on user role
+            if (currentUser.role === 'medical_staff' && currentUser.department !== 'all') {
+                // Staff sees only their department devices
+                allDevices = DEVICES.filter(d => d.department === currentUser.department);
+            } else {
+                // Admin, Engineer see all devices
+                // Inventory Manager sees all devices (read-only)
+                allDevices = [...DEVICES];
             }
+            
+            filteredDevices = [...allDevices];
+            updateStats();
+            renderDevices();
         }
 
-        function updateStats(devices) {
-            document.getElementById('totalDevices').textContent = devices.length;
-            document.getElementById('workingDevices').textContent = devices.filter(d => d.status === 'working').length;
-            document.getElementById('maintenanceDevices').textContent = devices.filter(d => d.status === 'maintenance').length;
-            document.getElementById('brokenDevices').textContent = devices.filter(d => d.status === 'broken').length;
+        function updateStats() {
+            document.getElementById('totalDevices').textContent = allDevices.length;
+            document.getElementById('operationalDevices').textContent = allDevices.filter(d => d.status === 'operational').length;
+            document.getElementById('maintenanceDevices').textContent = allDevices.filter(d => d.status === 'maintenance').length;
+            document.getElementById('outOfServiceDevices').textContent = allDevices.filter(d => d.status === 'out_of_service').length;
+            document.getElementById('deviceCount').textContent = filteredDevices.length + ' جهاز';
         }
 
         function filterDevices() {
-            const search = document.getElementById('searchDevices').value.toLowerCase();
             const department = document.getElementById('filterDepartment').value;
             const status = document.getElementById('filterStatus').value;
-            const type = document.getElementById('filterType').value;
+            const riskLevel = document.getElementById('filterRiskLevel').value;
+            const search = document.getElementById('searchDevices').value.toLowerCase();
 
-            let filtered = allDevices.filter(device => {
+            filteredDevices = allDevices.filter(device => {
+                const matchDepartment = !department || device.department === department;
+                const matchStatus = !status || device.status === status;
+                const matchRiskLevel = !riskLevel || device.riskLevel === riskLevel;
                 const matchSearch = !search || 
                     device.name.toLowerCase().includes(search) ||
                     device.serialNumber.toLowerCase().includes(search) ||
-                    device.model.toLowerCase().includes(search);
-                const matchDepartment = !department || device.departmentId === department;
-                const matchStatus = !status || device.status === status;
-                const matchType = !type || device.typeId === type;
+                    device.model.toLowerCase().includes(search) ||
+                    device.manufacturer.toLowerCase().includes(search);
 
-                return matchSearch && matchDepartment && matchStatus && matchType;
+                return matchDepartment && matchStatus && matchRiskLevel && matchSearch;
             });
 
-            renderDevices(filtered);
+            document.getElementById('deviceCount').textContent = filteredDevices.length + ' جهاز';
+            renderDevices();
         }
 
-        function renderDevices(devices) {
-            const container = document.getElementById('devicesGrid');
+        function renderDevices() {
+            const tableBody = document.getElementById('devicesTableBody');
+            const gridContainer = document.getElementById('gridView');
             const emptyState = document.getElementById('emptyState');
-            
-            document.getElementById('resultsCount').textContent = devices.length;
 
-            if (devices.length === 0) {
-                container.innerHTML = '';
+            if (filteredDevices.length === 0) {
+                tableBody.innerHTML = '';
+                gridContainer.innerHTML = '';
                 emptyState.style.display = 'flex';
                 return;
             }
 
             emptyState.style.display = 'none';
-            container.className = currentView === 'grid' ? 'devices-grid' : 'devices-list';
 
-            container.innerHTML = devices.map(device => `
-                <div class="device-card ${currentView === 'list' ? 'list-view' : ''}" data-id="${device.id}">
-                    <div class="device-header">
-                        <div class="device-icon ${device.status}">
-                            <i class="fas ${getDeviceIcon(device.type)}"></i>
+            // Table View
+            tableBody.innerHTML = filteredDevices.map(device => `
+                <tr>
+                    <td><strong>${device.id}</strong></td>
+                    <td>
+                        <div class="device-name-cell">
+                            <span class="device-name">${device.name}</span>
+                            <span class="device-serial">${device.serialNumber}</span>
                         </div>
-                        <div class="device-status status-${device.status}">
-                            ${getStatusText(device.status)}
+                    </td>
+                    <td>${device.manufacturer}</td>
+                    <td>${device.model}</td>
+                    <td>${getDepartmentText(device.department)}</td>
+                    <td>${device.location}</td>
+                    <td><span class="badge ${getStatusClass(device.status)}">${getStatusText(device.status)}</span></td>
+                    <td><span class="badge ${getRiskLevelClass(device.riskLevel)}">${getRiskLevelText(device.riskLevel)}</span></td>
+                    <td>
+                        <div class="table-actions">
+                            <button class="btn btn-ghost btn-sm" onclick="viewDeviceDetails('${device.id}')" title="عرض التفاصيل">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
+                            </button>
+                            ${currentUser.role !== 'inventory_manager' ? `
+                            <button class="btn btn-ghost btn-sm" onclick="openMaintenanceRequest('${device.id}')" title="طلب صيانة">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
+                            </button>
+                            ` : ''}
                         </div>
+                    </td>
+                </tr>
+            `).join('');
+
+            // Grid View
+            gridContainer.innerHTML = filteredDevices.map(device => `
+                <div class="device-card" onclick="viewDeviceDetails('${device.id}')">
+                    <div class="device-card-header">
+                        <div class="device-card-icon ${device.status}">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+                        </div>
+                        <span class="badge ${getStatusClass(device.status)}">${getStatusText(device.status)}</span>
                     </div>
-                    <div class="device-body">
-                        <h3 class="device-name">${device.name}</h3>
+                    <div class="device-card-body">
+                        <h4>${device.name}</h4>
                         <p class="device-model">${device.manufacturer} - ${device.model}</p>
-                        <div class="device-info">
-                            <span><i class="fas fa-barcode"></i> ${device.serialNumber}</span>
-                            <span><i class="fas fa-hospital"></i> ${device.departmentName}</span>
-                            <span><i class="fas fa-map-marker-alt"></i> ${device.location}</span>
+                        <div class="device-meta">
+                            <span><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg> ${getDepartmentText(device.department)}</span>
+                            <span><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg> ${device.location}</span>
                         </div>
-                        ${device.lastMaintenanceDate ? `
-                        <div class="device-maintenance">
-                            <i class="fas fa-wrench"></i>
-                            آخر صيانة: ${formatDate(device.lastMaintenanceDate)}
-                        </div>
-                        ` : ''}
                     </div>
-                    <div class="device-actions">
-                        <button class="btn btn-sm btn-outline" onclick="viewDevice('${device.id}')" title="عرض التفاصيل">
-                            <i class="fas fa-eye"></i>
-                        </button>
-                        ${device.status === 'working' ? `
-                        <button class="btn btn-sm btn-primary" onclick="openReserveModal('${device.id}', '${device.name}')" title="حجز">
-                            <i class="fas fa-calendar-plus"></i>
-                        </button>
-                        ` : ''}
-                        <button class="btn btn-sm btn-danger" onclick="openReportModal('${device.id}', '${device.name}')" title="الإبلاغ عن عطل">
-                            <i class="fas fa-exclamation-triangle"></i>
-                        </button>
+                    <div class="device-card-footer">
+                        <span class="badge ${getRiskLevelClass(device.riskLevel)}">${getRiskLevelText(device.riskLevel)}</span>
                     </div>
                 </div>
             `).join('');
         }
 
-        function getDeviceIcon(type) {
-            const icons = {
-                'diagnostic': 'fa-stethoscope',
-                'imaging': 'fa-x-ray',
-                'monitoring': 'fa-heartbeat',
-                'therapeutic': 'fa-syringe',
-                'laboratory': 'fa-flask',
-                'surgical': 'fa-cut',
-                'life-support': 'fa-lungs',
-                'dental': 'fa-tooth'
-            };
-            return icons[type] || 'fa-laptop-medical';
-        }
-
-        function getStatusText(status) {
-            const texts = {
-                'working': 'يعمل',
-                'maintenance': 'تحت الصيانة',
-                'broken': 'معطل',
-                'reserved': 'محجوز'
-            };
-            return texts[status] || status;
-        }
-
         function setView(view) {
             currentView = view;
-            document.querySelectorAll('.view-btn').forEach(btn => {
-                btn.classList.toggle('active', btn.dataset.view === view);
-            });
-            filterDevices();
+            document.getElementById('tableView').style.display = view === 'table' ? 'block' : 'none';
+            document.getElementById('gridView').style.display = view === 'grid' ? 'grid' : 'none';
+            
+            document.getElementById('tableViewBtn').classList.toggle('active', view === 'table');
+            document.getElementById('gridViewBtn').classList.toggle('active', view === 'grid');
         }
 
-        function resetFilters() {
-            document.getElementById('searchDevices').value = '';
-            document.getElementById('filterDepartment').value = '';
-            document.getElementById('filterStatus').value = '';
-            document.getElementById('filterType').value = '';
-            renderDevices(allDevices);
-        }
+        function viewDeviceDetails(deviceId) {
+            const device = allDevices.find(d => d.id === deviceId);
+            if (!device) return;
 
-        async function viewDevice(deviceId) {
-            try {
-                const devices = JSON.parse(localStorage.getItem('devices') || '[]');
-                const device = devices.find(d => d.id === deviceId);
-                if (!device) {
-                    showToast('الجهاز غير موجود', 'error');
-                    return;
-                }
-                
-                // Get maintenance history
-                const maintenanceHistory = JSON.parse(localStorage.getItem('maintenanceHistory') || '[]')
-                    .filter(h => h.deviceId === deviceId);
-                
-                // Get accessories/parts used
-                const inventory = JSON.parse(localStorage.getItem('inventory') || '[]');
-                
-                const modalBody = document.getElementById('deviceModalBody');
-                
-                const warrantyExpiry = new Date(device.warrantyExpiry);
-                const warrantyActive = warrantyExpiry > new Date();
-                
-                modalBody.innerHTML = `
-                    <div class="device-details">
-                        <div class="detail-header" style="display: flex; gap: 1rem; align-items: center; margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 2px solid var(--primary-color);">
-                            <div class="device-icon large ${device.status}" style="width: 60px; height: 60px; font-size: 1.5rem;">
-                                <i class="fas ${getDeviceIcon(device.category)}"></i>
+            document.getElementById('deviceModalTitle').textContent = device.name;
+            
+            const modalBody = document.getElementById('deviceModalBody');
+            modalBody.innerHTML = `
+                <div class="device-details">
+                    <!-- General Info -->
+                    <div class="detail-section">
+                        <h3>المعلومات الأساسية</h3>
+                        <div class="detail-grid">
+                            <div class="detail-item">
+                                <span class="detail-label">رقم الجهاز</span>
+                                <span class="detail-value">${device.id}</span>
                             </div>
-                            <div class="detail-title">
-                                <h2 style="margin: 0; font-size: 1.25rem;">${device.name}</h2>
-                                <span class="device-status status-${device.status}" style="display: inline-block; margin-top: 0.5rem;">
-                                    ${getStatusText(device.status === 'operational' ? 'working' : device.status)}
-                                </span>
-                                <span class="badge ${device.riskLevel === 'critical' ? 'badge-danger' : device.riskLevel === 'high' ? 'badge-warning' : 'badge-info'}" style="margin-right: 0.5rem;">
-                                    ${device.riskLevel === 'critical' ? 'حرج' : device.riskLevel === 'high' ? 'عالي' : device.riskLevel === 'medium' ? 'متوسط' : 'منخفض'}
-                                </span>
+                            <div class="detail-item">
+                                <span class="detail-label">الرقم التسلسلي</span>
+                                <span class="detail-value">${device.serialNumber}</span>
                             </div>
-                        </div>
-                        
-                        <div class="detail-grid" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.5rem;">
-                            <div class="detail-section">
-                                <h4 style="color: var(--primary-color); border-bottom: 2px solid var(--primary-color); padding-bottom: 0.5rem; display: inline-block;"><i class="fas fa-info-circle"></i> معلومات أساسية</h4>
-                                <div class="detail-row" style="display: flex; justify-content: space-between; padding: 0.5rem 0; border-bottom: 1px solid var(--gray-100);">
-                                    <span class="detail-label" style="color: var(--gray-500);">الرقم التسلسلي</span>
-                                    <span class="detail-value" style="font-weight: 500;">${device.serialNumber}</span>
-                                </div>
-                                <div class="detail-row" style="display: flex; justify-content: space-between; padding: 0.5rem 0; border-bottom: 1px solid var(--gray-100);">
-                                    <span class="detail-label" style="color: var(--gray-500);">الشركة المصنعة</span>
-                                    <span class="detail-value" style="font-weight: 500;">${device.manufacturer}</span>
-                                </div>
-                                <div class="detail-row" style="display: flex; justify-content: space-between; padding: 0.5rem 0; border-bottom: 1px solid var(--gray-100);">
-                                    <span class="detail-label" style="color: var(--gray-500);">الموديل</span>
-                                    <span class="detail-value" style="font-weight: 500;">${device.model}</span>
-                                </div>
-                                <div class="detail-row" style="display: flex; justify-content: space-between; padding: 0.5rem 0;">
-                                    <span class="detail-label" style="color: var(--gray-500);">الفئة</span>
-                                    <span class="detail-value" style="font-weight: 500;">${device.category || '-'}</span>
-                                </div>
+                            <div class="detail-item">
+                                <span class="detail-label">الشركة المصنعة</span>
+                                <span class="detail-value">${device.manufacturer}</span>
                             </div>
-                            
-                            <div class="detail-section">
-                                <h4 style="color: var(--primary-color); border-bottom: 2px solid var(--primary-color); padding-bottom: 0.5rem; display: inline-block;"><i class="fas fa-map-marker-alt"></i> الموقع</h4>
-                                <div class="detail-row" style="display: flex; justify-content: space-between; padding: 0.5rem 0; border-bottom: 1px solid var(--gray-100);">
-                                    <span class="detail-label" style="color: var(--gray-500);">القسم</span>
-                                    <span class="detail-value" style="font-weight: 500;">${getDepartmentText(device.department)}</span>
-                                </div>
-                                <div class="detail-row" style="display: flex; justify-content: space-between; padding: 0.5rem 0;">
-                                    <span class="detail-label" style="color: var(--gray-500);">الموقع</span>
-                                    <span class="detail-value" style="font-weight: 500;">${device.location || '-'}</span>
-                                </div>
+                            <div class="detail-item">
+                                <span class="detail-label">الموديل</span>
+                                <span class="detail-value">${device.model}</span>
                             </div>
-                            
-                            <div class="detail-section">
-                                <h4 style="color: var(--primary-color); border-bottom: 2px solid var(--primary-color); padding-bottom: 0.5rem; display: inline-block;"><i class="fas fa-wrench"></i> الصيانة</h4>
-                                <div class="detail-row" style="display: flex; justify-content: space-between; padding: 0.5rem 0; border-bottom: 1px solid var(--gray-100);">
-                                    <span class="detail-label" style="color: var(--gray-500);">آخر صيانة</span>
-                                    <span class="detail-value" style="font-weight: 500;">${device.lastMaintenance ? formatDate(device.lastMaintenance) : 'لم تتم صيانة'}</span>
-                                </div>
-                                <div class="detail-row" style="display: flex; justify-content: space-between; padding: 0.5rem 0; border-bottom: 1px solid var(--gray-100);">
-                                    <span class="detail-label" style="color: var(--gray-500);">نوع الصيانة الأخيرة</span>
-                                    <span class="detail-value" style="font-weight: 500;">${device.lastMaintenanceType || '-'}</span>
-                                </div>
-                                <div class="detail-row" style="display: flex; justify-content: space-between; padding: 0.5rem 0;">
-                                    <span class="detail-label" style="color: var(--gray-500);">الصيانة القادمة</span>
-                                    <span class="detail-value" style="font-weight: 500;">${device.nextMaintenance ? formatDate(device.nextMaintenance) : 'غير محدد'}</span>
-                                </div>
+                            <div class="detail-item">
+                                <span class="detail-label">المورد</span>
+                                <span class="detail-value">${device.supplier}</span>
                             </div>
-                            
-                            <div class="detail-section">
-                                <h4 style="color: var(--primary-color); border-bottom: 2px solid var(--primary-color); padding-bottom: 0.5rem; display: inline-block;"><i class="fas fa-file-contract"></i> الضمان</h4>
-                                <div class="detail-row" style="display: flex; justify-content: space-between; padding: 0.5rem 0; border-bottom: 1px solid var(--gray-100);">
-                                    <span class="detail-label" style="color: var(--gray-500);">تاريخ الشراء</span>
-                                    <span class="detail-value" style="font-weight: 500;">${device.purchaseDate ? formatDate(device.purchaseDate) : '-'}</span>
-                                </div>
-                                <div class="detail-row" style="display: flex; justify-content: space-between; padding: 0.5rem 0; border-bottom: 1px solid var(--gray-100);">
-                                    <span class="detail-label" style="color: var(--gray-500);">انتهاء الضمان</span>
-                                    <span class="detail-value" style="font-weight: 500;">${device.warrantyExpiry ? formatDate(device.warrantyExpiry) : '-'}</span>
-                                </div>
-                                <div class="detail-row" style="display: flex; justify-content: space-between; padding: 0.5rem 0;">
-                                    <span class="detail-label" style="color: var(--gray-500);">حالة الضمان</span>
-                                    <span class="detail-value" style="font-weight: 500; color: ${warrantyActive ? 'var(--success-color)' : 'var(--danger-color)'};">
-                                        ${warrantyActive ? 'ساري' : 'منتهي'}
-                                    </span>
-                                </div>
+                            <div class="detail-item">
+                                <span class="detail-label">الفئة</span>
+                                <span class="detail-value">${device.category}</span>
                             </div>
-                        </div>
-                        
-                        ${device.notes ? `
-                        <div class="detail-section full-width" style="margin-top: 1.5rem;">
-                            <h4 style="color: var(--primary-color); border-bottom: 2px solid var(--primary-color); padding-bottom: 0.5rem; display: inline-block;"><i class="fas fa-sticky-note"></i> ملاحظات</h4>
-                            <p style="background: var(--gray-50); padding: 1rem; border-radius: var(--radius); margin-top: 0.5rem;">${device.notes}</p>
-                        </div>
-                        ` : ''}
-                        
-                        <div class="detail-section full-width" style="margin-top: 1.5rem;">
-                            <h4 style="color: var(--primary-color); border-bottom: 2px solid var(--primary-color); padding-bottom: 0.5rem; display: inline-block;"><i class="fas fa-history"></i> سجل الصيانة</h4>
-                            <div class="maintenance-history" style="margin-top: 1rem; max-height: 250px; overflow-y: auto;">
-                                ${maintenanceHistory.length > 0 ? 
-                                    maintenanceHistory.slice(0, 5).map(record => `
-                                        <div class="history-item" style="display: flex; align-items: center; gap: 1rem; padding: 0.75rem; border-bottom: 1px solid var(--gray-100);">
-                                            <div class="history-icon" style="width: 36px; height: 36px; border-radius: 50%; background: var(--primary-color); color: white; display: flex; align-items: center; justify-content: center;">
-                                                <i class="fas fa-wrench"></i>
-                                            </div>
-                                            <div style="flex: 1;">
-                                                <div class="history-date" style="font-size: 0.8rem; color: var(--gray-500);">${formatDate(record.date)}</div>
-                                                <div class="history-type" style="font-weight: 600;">${record.type}</div>
-                                                <div class="history-desc" style="font-size: 0.85rem; color: var(--gray-600);">${record.notes || ''}</div>
-                                            </div>
-                                            <div class="history-engineer" style="font-size: 0.85rem; color: var(--gray-500);">${record.technician}</div>
-                                        </div>
-                                    `).join('')
-                                    : '<p style="text-align: center; color: var(--gray-500); padding: 1rem;">لا يوجد سجل صيانة</p>'
-                                }
-                            </div>
-                        </div>
-                        
-                        <div style="margin-top: 1.5rem; display: flex; gap: 0.75rem; justify-content: flex-end;">
-                            ${currentUser.role !== 'inventory_manager' ? `
-                                <button class="btn btn-warning" onclick="closeModal('deviceModal'); openReportModal('${device.id}', '${device.name}');">
-                                    <i class="fas fa-exclamation-triangle"></i>
-                                    طلب صيانة
-                                </button>
-                            ` : ''}
-                            <button class="btn btn-secondary" onclick="closeModal('deviceModal')">
-                                إغلاق
-                            </button>
                         </div>
                     </div>
-                `;
+                    
+                    <!-- Location & Status -->
+                    <div class="detail-section">
+                        <h3>الموقع والحالة</h3>
+                        <div class="detail-grid">
+                            <div class="detail-item">
+                                <span class="detail-label">القسم</span>
+                                <span class="detail-value">${getDepartmentText(device.department)}</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">الموقع</span>
+                                <span class="detail-value">${device.location}</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">الحالة</span>
+                                <span class="badge ${getStatusClass(device.status)}">${getStatusText(device.status)}</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">مستوى الخطورة</span>
+                                <span class="badge ${getRiskLevelClass(device.riskLevel)}">${getRiskLevelText(device.riskLevel)}</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Dates -->
+                    <div class="detail-section">
+                        <h3>التواريخ</h3>
+                        <div class="detail-grid">
+                            <div class="detail-item">
+                                <span class="detail-label">تاريخ الشراء</span>
+                                <span class="detail-value">${formatDate(device.purchaseDate)}</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">انتهاء الضمان</span>
+                                <span class="detail-value">${formatDate(device.warrantyExpiry)}</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">العمر الافتراضي</span>
+                                <span class="detail-value">${device.expectedLifetime}</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">آخر صيانة</span>
+                                <span class="detail-value">${formatDate(device.lastMaintenance)}</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">نوع آخر صيانة</span>
+                                <span class="detail-value">${device.lastMaintenanceType}</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">الصيانة القادمة</span>
+                                <span class="detail-value">${formatDate(device.nextMaintenance)}</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Accessories -->
+                    ${device.accessories && device.accessories.length > 0 ? `
+                    <div class="detail-section">
+                        <h3>الملحقات</h3>
+                        <div class="accessories-list">
+                            ${device.accessories.map(acc => `<span class="accessory-tag">${acc}</span>`).join('')}
+                        </div>
+                    </div>
+                    ` : ''}
+                    
+                    <!-- Maintenance History -->
+                    <div class="detail-section">
+                        <h3>سجل الصيانة</h3>
+                        ${device.maintenanceHistory && device.maintenanceHistory.length > 0 ? `
+                        <div class="table-wrapper">
+                            <table class="table table-sm">
+                                <thead>
+                                    <tr>
+                                        <th>التاريخ</th>
+                                        <th>النوع</th>
+                                        <th>المهندس</th>
+                                        <th>الملاحظات</th>
+                                        <th>التكلفة</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${device.maintenanceHistory.map(m => `
+                                        <tr>
+                                            <td>${formatDate(m.date)}</td>
+                                            <td>${m.type}</td>
+                                            <td>${m.engineer}</td>
+                                            <td>${m.notes}</td>
+                                            <td>${m.cost} ريال</td>
+                                        </tr>
+                                    `).join('')}
+                                </tbody>
+                            </table>
+                        </div>
+                        ` : '<p class="text-muted">لا يوجد سجل صيانة</p>'}
+                    </div>
+                    
+                    <!-- Notes -->
+                    ${device.notes ? `
+                    <div class="detail-section">
+                        <h3>ملاحظات</h3>
+                        <p>${device.notes}</p>
+                    </div>
+                    ` : ''}
+                </div>
                 
-                openModal('deviceModal');
-            } catch (error) {
-                showToast('خطأ في تحميل تفاصيل الجهاز', 'error');
-            }
+                ${currentUser.role !== 'inventory_manager' ? `
+                <div class="modal-footer">
+                    <button class="btn btn-primary" onclick="closeModal('deviceModal'); openMaintenanceRequest('${device.id}');">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
+                        طلب صيانة
+                    </button>
+                </div>
+                ` : ''}
+            `;
+            
+            openModal('deviceModal');
         }
 
-        function openReportModal(deviceId, deviceName) {
-            document.getElementById('reportDeviceId').value = deviceId;
-            document.getElementById('reportDeviceName').value = deviceName;
-            document.getElementById('reportForm').reset();
-            document.getElementById('reportDeviceName').value = deviceName;
-            openModal('reportModal');
+        function openMaintenanceRequest(deviceId) {
+            const device = allDevices.find(d => d.id === deviceId);
+            if (!device) return;
+
+            document.getElementById('requestDeviceId').value = device.id;
+            document.getElementById('requestDeviceName').value = `${device.name} (${device.serialNumber})`;
+            
+            // Reset form
+            document.getElementById('maintenanceRequestForm').reset();
+            document.getElementById('requestDeviceName').value = `${device.name} (${device.serialNumber})`;
+            
+            openModal('maintenanceRequestModal');
         }
 
-        async function submitReport(event) {
-            event.preventDefault();
+        function submitMaintenanceRequest(e) {
+            e.preventDefault();
             
-            const deviceId = document.getElementById('reportDeviceId').value;
-            const devices = JSON.parse(localStorage.getItem('devices') || '[]');
-            const device = devices.find(d => d.id === deviceId);
+            const deviceId = document.getElementById('requestDeviceId').value;
+            const device = allDevices.find(d => d.id === deviceId);
             
-            const newRequest = {
-                id: 'MR' + Date.now().toString(36).toUpperCase(),
-                deviceId: deviceId,
-                deviceName: device ? device.name : '',
-                serialNumber: device ? device.serialNumber : '',
-                department: device ? device.department : currentUser.department,
-                issueType: document.getElementById('reportType').value,
-                description: document.getElementById('reportDescription').value,
-                priority: document.getElementById('reportPriority').value,
-                status: 'pending',
-                requestedBy: currentUser.name,
-                requestDate: new Date().toISOString().split('T')[0],
-                assignedTo: null,
-                startDate: null,
-                completedDate: null,
-                notes: '',
-                partsUsed: [],
-                hasAlternative: true,
-                images: []
-            };
-
-            // Save to localStorage
-            const requests = JSON.parse(localStorage.getItem('maintenanceRequests') || '[]');
-            requests.unshift(newRequest);
-            localStorage.setItem('maintenanceRequests', JSON.stringify(requests));
-
-            // Add notification
-            const notifications = JSON.parse(localStorage.getItem('notifications') || '[]');
-            notifications.unshift({
-                id: 'N' + Date.now().toString(36).toUpperCase(),
-                type: 'maintenance',
-                title: 'طلب صيانة جديد',
-                message: 'تم إنشاء طلب صيانة لجهاز ' + newRequest.deviceName,
-                date: new Date().toISOString(),
-                read: false,
-                forRoles: ['engineer', 'admin']
-            });
-            localStorage.setItem('notifications', JSON.stringify(notifications));
-
-            showToast('تم إرسال البلاغ بنجاح', 'success');
-            closeModal('reportModal');
-            loadDevices();
+            // In a real app, this would send to server
+            // For demo, just show success message
+            showToast('تم إرسال طلب الصيانة بنجاح', 'success');
+            closeModal('maintenanceRequestModal');
         }
 
-        function openReserveModal(deviceId, deviceName) {
-            document.getElementById('reserveDeviceId').value = deviceId;
-            document.getElementById('reserveDeviceName').value = deviceName;
-            document.getElementById('reserveForm').reset();
-            document.getElementById('reserveDeviceName').value = deviceName;
-            
-            // Set minimum date to now
-            const now = new Date().toISOString().slice(0, 16);
-            document.getElementById('reserveStartDate').min = now;
-            document.getElementById('reserveEndDate').min = now;
-            
-            openModal('reserveModal');
-        }
-
-        async function submitReservation(event) {
-            event.preventDefault();
-            
-            const startDate = new Date(document.getElementById('reserveStartDate').value);
-            const endDate = new Date(document.getElementById('reserveEndDate').value);
-            
-            if (endDate <= startDate) {
-                showToast('تاريخ النهاية يجب أن يكون بعد تاريخ البداية', 'error');
-                return;
-            }
-
-            const reservationData = {
-                deviceId: document.getElementById('reserveDeviceId').value,
-                startDate: startDate.toISOString(),
-                endDate: endDate.toISOString(),
-                reason: document.getElementById('reserveReason').value
-            };
-
-            try {
-                await apiService.createReservation(reservationData);
-                showToast('تم حجز الجهاز بنجاح', 'success');
-                closeModal('reserveModal');
-                loadDevices();
-            } catch (error) {
-                showToast('خطأ في حجز الجهاز', 'error');
-            }
-        }
-
-        function showLoading(show) {
-            document.getElementById('loadingState').style.display = show ? 'flex' : 'none';
-            document.getElementById('devicesContainer').style.display = show ? 'none' : 'block';
-        }
+        // Event listeners
+        document.getElementById('filterDepartment').addEventListener('change', filterDevices);
+        document.getElementById('filterStatus').addEventListener('change', filterDevices);
+        document.getElementById('filterRiskLevel').addEventListener('change', filterDevices);
+        document.getElementById('searchDevices').addEventListener('input', debounce(filterDevices, 300));
     </script>
 </body>
 </html>
