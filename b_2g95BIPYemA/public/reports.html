@@ -370,6 +370,7 @@
         <div class="notifications-list" id="notificationsList"></div>
     </div>
 
+    <script src="data.js"></script>
     <script src="apiService.js"></script>
     <script src="script.js"></script>
     <script>
@@ -450,10 +451,11 @@
         }
 
         async function getReportData(type, startDate, endDate) {
-            const devices = JSON.parse(localStorage.getItem('devices') || '[]');
-            const requests = JSON.parse(localStorage.getItem('maintenanceRequests') || '[]');
-            const inventory = JSON.parse(localStorage.getItem('inventory') || '[]');
-            const departments = await apiService.getDepartments();
+            // Use static data from data.js
+            const devices = DEVICES;
+            const requests = MAINTENANCE_REQUESTS;
+            const inventory = INVENTORY;
+            const departments = DEPARTMENTS.filter(d => d.id !== 'all');
 
             switch (type) {
                 case 'devices':
@@ -550,8 +552,10 @@
                     };
 
                 case 'costs':
-                    const history = JSON.parse(localStorage.getItem('maintenanceHistory') || '[]');
-                    const totalCost = history.reduce((sum, h) => sum + (h.cost || 0), 0);
+                    // Calculate costs from devices maintenance history
+                    const totalCost = devices.reduce((sum, d) => 
+                        sum + (d.maintenanceHistory || []).reduce((s, h) => s + (h.cost || 0), 0), 0
+                    );
                     const costByDept = departments.map(dept => {
                         const deptReqs = requests.filter(r => r.department === dept.id);
                         return {
@@ -609,7 +613,7 @@
                             <span>SMEMS</span>
                         </div>
                         <div class="report-meta">
-                            <h1>تقرير الأجهزة الطبية</h1>
+                            <h1>تقرير الأ��هزة الطبية</h1>
                             <p>الفترة: ${document.getElementById('reportStartDate').value} - ${document.getElementById('reportEndDate').value}</p>
                             <p>تاريخ الإنشاء: ${formatDate(new Date())}</p>
                         </div>
