@@ -1,0 +1,1116 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لوحة تحكم المدير - SMEMS</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <i class="fas fa-heartbeat"></i>
+                    <span>SMEMS</span>
+                </div>
+                <button class="sidebar-toggle" id="sidebarToggle">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </div>
+            <nav class="sidebar-nav" id="sidebarNav"></nav>
+            <div class="sidebar-footer">
+                <div class="user-info">
+                    <div class="user-avatar" id="userAvatar">م</div>
+                    <div class="user-details">
+                        <span class="user-name" id="userName">المستخدم</span>
+                        <span class="user-role" id="userRole">الدور</span>
+                    </div>
+                </div>
+                <button class="logout-btn" onclick="logout()">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>تسجيل الخروج</span>
+                </button>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="main-header">
+                <div class="header-right">
+                    <button class="mobile-menu-btn" id="mobileMenuBtn">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <h1 class="page-title">
+                        <i class="fas fa-tachometer-alt"></i>
+                        لوحة تحكم المدير
+                    </h1>
+                </div>
+                <div class="header-left">
+                    <div class="date-range-picker">
+                        <input type="date" id="startDate">
+                        <span>إلى</span>
+                        <input type="date" id="endDate">
+                        <button class="btn btn-primary btn-sm" onclick="applyDateRange()">تطبيق</button>
+                    </div>
+                    <button class="btn btn-secondary" onclick="exportReport()">
+                        <i class="fas fa-download"></i>
+                        تصدير التقرير
+                    </button>
+                    <button class="notification-btn" id="notificationBtn">
+                        <i class="fas fa-bell"></i>
+                        <span class="notification-badge" id="notificationBadge">0</span>
+                    </button>
+                </div>
+            </header>
+
+            <div class="content-area">
+                <!-- Main Stats -->
+                <div class="stats-grid stats-5">
+                    <div class="stat-card stat-primary clickable" onclick="navigateTo('devices.html')">
+                        <div class="stat-icon"><i class="fas fa-laptop-medical"></i></div>
+                        <div class="stat-info">
+                            <span class="stat-value" id="totalDevices">0</span>
+                            <span class="stat-label">إجمالي الأجهزة</span>
+                        </div>
+                        <div class="stat-trend up">
+                            <i class="fas fa-arrow-up"></i>
+                            <span id="devicesTrend">0%</span>
+                        </div>
+                    </div>
+                    <div class="stat-card stat-success clickable" onclick="navigateTo('devices.html?status=working')">
+                        <div class="stat-icon"><i class="fas fa-check-circle"></i></div>
+                        <div class="stat-info">
+                            <span class="stat-value" id="workingDevices">0</span>
+                            <span class="stat-label">أجهزة تعمل</span>
+                        </div>
+                        <div class="stat-percentage">
+                            <span id="workingPercentage">0%</span>
+                        </div>
+                    </div>
+                    <div class="stat-card stat-warning clickable" onclick="navigateTo('maintenance.html?tab=pending')">
+                        <div class="stat-icon"><i class="fas fa-tools"></i></div>
+                        <div class="stat-info">
+                            <span class="stat-value" id="pendingMaintenance">0</span>
+                            <span class="stat-label">صيانة معلقة</span>
+                        </div>
+                    </div>
+                    <div class="stat-card stat-danger clickable" onclick="navigateTo('maintenance.html?priority=critical')">
+                        <div class="stat-icon"><i class="fas fa-exclamation-triangle"></i></div>
+                        <div class="stat-info">
+                            <span class="stat-value" id="criticalIssues">0</span>
+                            <span class="stat-label">مشاكل حرجة</span>
+                        </div>
+                    </div>
+                    <div class="stat-card stat-info clickable" onclick="navigateTo('inventory.html')">
+                        <div class="stat-icon"><i class="fas fa-boxes"></i></div>
+                        <div class="stat-info">
+                            <span class="stat-value" id="lowStock">0</span>
+                            <span class="stat-label">مخزون منخفض</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Charts Row -->
+                <div class="charts-row">
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <h3><i class="fas fa-chart-pie"></i> توزيع حالة الأجهزة</h3>
+                        </div>
+                        <div class="chart-body">
+                            <canvas id="deviceStatusChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <h3><i class="fas fa-chart-line"></i> طلبات الصيانة الشهرية</h3>
+                        </div>
+                        <div class="chart-body">
+                            <canvas id="maintenanceChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Second Row -->
+                <div class="charts-row">
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <h3><i class="fas fa-chart-bar"></i> الصيانة حسب القسم</h3>
+                        </div>
+                        <div class="chart-body">
+                            <canvas id="departmentChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <h3><i class="fas fa-user-cog"></i> أداء المهندسين</h3>
+                        </div>
+                        <div class="chart-body">
+                            <canvas id="engineersChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tables Row -->
+                <div class="tables-row">
+                    <!-- Recent Maintenance -->
+                    <div class="table-card">
+                        <div class="table-header">
+                            <h3><i class="fas fa-history"></i> آخر طلبات الصيانة</h3>
+                            <a href="maintenance.html" class="view-all">عرض الكل</a>
+                        </div>
+                        <div class="table-body">
+                            <table class="mini-table">
+                                <thead>
+                                    <tr>
+                                        <th>الطلب</th>
+                                        <th>الجهاز</th>
+                                        <th>الأولوية</th>
+                                        <th>الحالة</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="recentMaintenanceBody">
+                                    <!-- Dynamic content -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Critical Alerts -->
+                    <div class="table-card">
+                        <div class="table-header">
+                            <h3><i class="fas fa-bell"></i> التنبيهات الحرجة</h3>
+                            <button class="btn btn-sm btn-outline" onclick="clearAlerts()">مسح الكل</button>
+                        </div>
+                        <div class="table-body">
+                            <div class="alerts-list" id="criticalAlertsList">
+                                <!-- Dynamic content -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- KPIs Section -->
+                <div class="kpi-section">
+                    <h3><i class="fas fa-chart-line"></i> مؤشرات الأداء الرئيسية (KPIs)</h3>
+                    <div class="kpi-grid">
+                        <div class="kpi-card">
+                            <div class="kpi-title">متوسط وقت الاستجابة</div>
+                            <div class="kpi-value" id="avgResponseTime">0</div>
+                            <div class="kpi-unit">ساعة</div>
+                            <div class="kpi-target">الهدف: 4 ساعات</div>
+                            <div class="kpi-progress">
+                                <div class="kpi-progress-bar" id="responseTimeProgress"></div>
+                            </div>
+                        </div>
+                        <div class="kpi-card">
+                            <div class="kpi-title">متوسط وقت الإصلاح</div>
+                            <div class="kpi-value" id="avgRepairTime">0</div>
+                            <div class="kpi-unit">ساعة</div>
+                            <div class="kpi-target">الهدف: 24 ساعة</div>
+                            <div class="kpi-progress">
+                                <div class="kpi-progress-bar" id="repairTimeProgress"></div>
+                            </div>
+                        </div>
+                        <div class="kpi-card">
+                            <div class="kpi-title">نسبة توفر الأجهزة</div>
+                            <div class="kpi-value" id="deviceAvailability">0%</div>
+                            <div class="kpi-unit"></div>
+                            <div class="kpi-target">الهدف: 95%</div>
+                            <div class="kpi-progress">
+                                <div class="kpi-progress-bar" id="availabilityProgress"></div>
+                            </div>
+                        </div>
+                        <div class="kpi-card">
+                            <div class="kpi-title">الصيانة الوقائية المنجزة</div>
+                            <div class="kpi-value" id="preventiveCompleted">0%</div>
+                            <div class="kpi-unit"></div>
+                            <div class="kpi-target">الهدف: 100%</div>
+                            <div class="kpi-progress">
+                                <div class="kpi-progress-bar" id="preventiveProgress"></div>
+                            </div>
+                        </div>
+                        <div class="kpi-card">
+                            <div class="kpi-title">رضا المستخدمين</div>
+                            <div class="kpi-value" id="userSatisfaction">0</div>
+                            <div class="kpi-unit">/ 5</div>
+                            <div class="kpi-target">الهدف: 4.5</div>
+                            <div class="kpi-progress">
+                                <div class="kpi-progress-bar" id="satisfactionProgress"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- User Management Section -->
+                <div class="admin-section">
+                    <div class="section-header">
+                        <h3><i class="fas fa-users-cog"></i> إدارة المستخدمين</h3>
+                        <button class="btn btn-primary" onclick="openAddUserModal()">
+                            <i class="fas fa-user-plus"></i>
+                            إضافة مستخدم
+                        </button>
+                    </div>
+                    <div class="table-container">
+                        <table class="data-table" id="usersTable">
+                            <thead>
+                                <tr>
+                                    <th>الاسم</th>
+                                    <th>البريد الإلكتروني</th>
+                                    <th>الدور</th>
+                                    <th>القسم</th>
+                                    <th>الحالة</th>
+                                    <th>آخر تسجيل دخول</th>
+                                    <th>الإجراءات</th>
+                                </tr>
+                            </thead>
+                            <tbody id="usersTableBody">
+                                <!-- Dynamic content -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- System Settings -->
+                <div class="admin-section">
+                    <div class="section-header">
+                        <h3><i class="fas fa-cog"></i> إعدادات النظام</h3>
+                    </div>
+                    <div class="settings-grid">
+                        <div class="setting-card" onclick="openSettingModal('departments')">
+                            <div class="setting-icon"><i class="fas fa-hospital"></i></div>
+                            <div class="setting-info">
+                                <h4>الأقسام</h4>
+                                <p>إدارة أقسام المستشفى</p>
+                            </div>
+                        </div>
+                        <div class="setting-card" onclick="openSettingModal('deviceTypes')">
+                            <div class="setting-icon"><i class="fas fa-laptop-medical"></i></div>
+                            <div class="setting-info">
+                                <h4>أنواع الأجهزة</h4>
+                                <p>إدارة فئات الأجهزة</p>
+                            </div>
+                        </div>
+                        <div class="setting-card" onclick="openSettingModal('suppliers')">
+                            <div class="setting-icon"><i class="fas fa-truck"></i></div>
+                            <div class="setting-info">
+                                <h4>الموردين</h4>
+                                <p>إدارة قائمة الموردين</p>
+                            </div>
+                        </div>
+                        <div class="setting-card" onclick="openSettingModal('maintenanceSchedule')">
+                            <div class="setting-icon"><i class="fas fa-calendar-alt"></i></div>
+                            <div class="setting-info">
+                                <h4>جدولة الصيانة</h4>
+                                <p>إعدادات الصيانة الوقائية</p>
+                            </div>
+                        </div>
+                        <div class="setting-card" onclick="openSettingModal('notifications')">
+                            <div class="setting-icon"><i class="fas fa-bell"></i></div>
+                            <div class="setting-info">
+                                <h4>الإشعارات</h4>
+                                <p>إعدادات التنبيهات</p>
+                            </div>
+                        </div>
+                        <div class="setting-card" onclick="openSettingModal('backup')">
+                            <div class="setting-icon"><i class="fas fa-database"></i></div>
+                            <div class="setting-info">
+                                <h4>النسخ الاحتياطي</h4>
+                                <p>إدارة النسخ الاحتياطية</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Add/Edit User Modal -->
+    <div class="modal" id="userModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="userModalTitle">إضافة مستخدم جديد</h2>
+                <button class="modal-close" onclick="closeModal('userModal')">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="userForm" onsubmit="submitUser(event)">
+                    <input type="hidden" id="userId">
+                    <div class="form-group">
+                        <label>الاسم الكامل <span class="required">*</span></label>
+                        <input type="text" id="userFullName" required>
+                    </div>
+                    <div class="form-group">
+                        <label>البريد الإلكتروني <span class="required">*</span></label>
+                        <input type="email" id="userEmail" required>
+                    </div>
+                    <div class="form-group" id="passwordGroup">
+                        <label>كلمة المرور <span class="required">*</span></label>
+                        <input type="password" id="userPassword" minlength="6">
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>الدور <span class="required">*</span></label>
+                            <select id="userRoleSelect" required>
+                                <option value="medical_staff">كادر طبي</option>
+                                <option value="engineer">مهندس</option>
+                                <option value="inventory_manager">مدير مخزون</option>
+                                <option value="admin">مدير</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>القسم</label>
+                            <select id="userDepartment">
+                                <option value="">اختر القسم</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>رقم الهاتف</label>
+                        <input type="tel" id="userPhone">
+                    </div>
+                    <div class="form-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="userActive" checked>
+                            <span>حساب نشط</span>
+                        </label>
+                    </div>
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-secondary" onclick="closeModal('userModal')">إلغاء</button>
+                        <button type="submit" class="btn btn-primary">حفظ</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Settings Modal -->
+    <div class="modal" id="settingsModal">
+        <div class="modal-content modal-lg">
+            <div class="modal-header">
+                <h2 id="settingsModalTitle">الإعدادات</h2>
+                <button class="modal-close" onclick="closeModal('settingsModal')">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body" id="settingsModalBody">
+                <!-- Dynamic content -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Notifications Panel -->
+    <div class="notifications-panel" id="notificationsPanel">
+        <div class="notifications-header">
+            <h3>الإشعارات</h3>
+            <button class="mark-all-read" onclick="markAllAsRead()">تحديد الكل كمقروء</button>
+        </div>
+        <div class="notifications-list" id="notificationsList"></div>
+    </div>
+
+    <script src="apiService.js"></script>
+    <script src="script.js"></script>
+    <script>
+        let charts = {};
+
+        document.addEventListener('DOMContentLoaded', function() {
+            checkAuth();
+            initializeSidebar();
+            setDefaultDates();
+            loadDashboardData();
+            loadUsers();
+        });
+
+        function setDefaultDates() {
+            const endDate = new Date();
+            const startDate = new Date();
+            startDate.setMonth(startDate.getMonth() - 1);
+            
+            document.getElementById('startDate').value = startDate.toISOString().split('T')[0];
+            document.getElementById('endDate').value = endDate.toISOString().split('T')[0];
+        }
+
+        async function loadDashboardData() {
+            try {
+                const [stats, maintenance, kpis] = await Promise.all([
+                    apiService.getDashboardStats(),
+                    apiService.getMaintenanceStats(),
+                    apiService.getKPIs()
+                ]);
+
+                updateStats(stats);
+                updateKPIs(kpis);
+                renderCharts(stats, maintenance);
+                loadRecentMaintenance();
+                loadCriticalAlerts();
+            } catch (error) {
+                console.error('Error loading dashboard data:', error);
+                showToast('خطأ في تحميل البيانات', 'error');
+            }
+        }
+
+        function updateStats(stats) {
+            document.getElementById('totalDevices').textContent = stats.totalDevices;
+            document.getElementById('workingDevices').textContent = stats.workingDevices;
+            document.getElementById('pendingMaintenance').textContent = stats.pendingMaintenance;
+            document.getElementById('criticalIssues').textContent = stats.criticalIssues;
+            document.getElementById('lowStock').textContent = stats.lowStockItems;
+            
+            const workingPercentage = stats.totalDevices > 0 
+                ? Math.round((stats.workingDevices / stats.totalDevices) * 100) 
+                : 0;
+            document.getElementById('workingPercentage').textContent = workingPercentage + '%';
+        }
+
+        function updateKPIs(kpis) {
+            document.getElementById('avgResponseTime').textContent = kpis.avgResponseTime.toFixed(1);
+            document.getElementById('avgRepairTime').textContent = kpis.avgRepairTime.toFixed(1);
+            document.getElementById('deviceAvailability').textContent = kpis.deviceAvailability + '%';
+            document.getElementById('preventiveCompleted').textContent = kpis.preventiveCompleted + '%';
+            document.getElementById('userSatisfaction').textContent = kpis.userSatisfaction.toFixed(1);
+
+            // Update progress bars
+            const responseProgress = Math.min((4 / kpis.avgResponseTime) * 100, 100);
+            document.getElementById('responseTimeProgress').style.width = responseProgress + '%';
+            document.getElementById('responseTimeProgress').className = 'kpi-progress-bar ' + (responseProgress >= 80 ? 'good' : responseProgress >= 50 ? 'warning' : 'bad');
+
+            const repairProgress = Math.min((24 / kpis.avgRepairTime) * 100, 100);
+            document.getElementById('repairTimeProgress').style.width = repairProgress + '%';
+            document.getElementById('repairTimeProgress').className = 'kpi-progress-bar ' + (repairProgress >= 80 ? 'good' : repairProgress >= 50 ? 'warning' : 'bad');
+
+            document.getElementById('availabilityProgress').style.width = kpis.deviceAvailability + '%';
+            document.getElementById('availabilityProgress').className = 'kpi-progress-bar ' + (kpis.deviceAvailability >= 95 ? 'good' : kpis.deviceAvailability >= 80 ? 'warning' : 'bad');
+
+            document.getElementById('preventiveProgress').style.width = kpis.preventiveCompleted + '%';
+            document.getElementById('preventiveProgress').className = 'kpi-progress-bar ' + (kpis.preventiveCompleted >= 90 ? 'good' : kpis.preventiveCompleted >= 70 ? 'warning' : 'bad');
+
+            const satisfactionProgress = (kpis.userSatisfaction / 5) * 100;
+            document.getElementById('satisfactionProgress').style.width = satisfactionProgress + '%';
+            document.getElementById('satisfactionProgress').className = 'kpi-progress-bar ' + (kpis.userSatisfaction >= 4.5 ? 'good' : kpis.userSatisfaction >= 3.5 ? 'warning' : 'bad');
+        }
+
+        function renderCharts(stats, maintenance) {
+            // Device Status Chart
+            const deviceCtx = document.getElementById('deviceStatusChart').getContext('2d');
+            if (charts.deviceStatus) charts.deviceStatus.destroy();
+            charts.deviceStatus = new Chart(deviceCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['تعمل', 'تحت الصيانة', 'معطلة', 'محجوزة'],
+                    datasets: [{
+                        data: [stats.workingDevices, stats.maintenanceDevices, stats.brokenDevices, stats.reservedDevices],
+                        backgroundColor: ['#10b981', '#f59e0b', '#ef4444', '#6366f1'],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            rtl: true,
+                            labels: {
+                                font: { family: 'Tajawal' }
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Monthly Maintenance Chart
+            const maintenanceCtx = document.getElementById('maintenanceChart').getContext('2d');
+            if (charts.maintenance) charts.maintenance.destroy();
+            charts.maintenance = new Chart(maintenanceCtx, {
+                type: 'line',
+                data: {
+                    labels: maintenance.months,
+                    datasets: [
+                        {
+                            label: 'طلبات جديدة',
+                            data: maintenance.newRequests,
+                            borderColor: '#3b82f6',
+                            backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                            fill: true,
+                            tension: 0.4
+                        },
+                        {
+                            label: 'مكتملة',
+                            data: maintenance.completed,
+                            borderColor: '#10b981',
+                            backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                            fill: true,
+                            tension: 0.4
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            rtl: true,
+                            labels: {
+                                font: { family: 'Tajawal' }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+
+            // Department Chart
+            const deptCtx = document.getElementById('departmentChart').getContext('2d');
+            if (charts.department) charts.department.destroy();
+            charts.department = new Chart(deptCtx, {
+                type: 'bar',
+                data: {
+                    labels: maintenance.departments.map(d => d.name),
+                    datasets: [{
+                        label: 'عدد الطلبات',
+                        data: maintenance.departments.map(d => d.count),
+                        backgroundColor: '#3b82f6',
+                        borderRadius: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    indexAxis: 'y',
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        x: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+
+            // Engineers Performance Chart
+            const engCtx = document.getElementById('engineersChart').getContext('2d');
+            if (charts.engineers) charts.engineers.destroy();
+            charts.engineers = new Chart(engCtx, {
+                type: 'bar',
+                data: {
+                    labels: maintenance.engineers.map(e => e.name),
+                    datasets: [
+                        {
+                            label: 'مكتملة',
+                            data: maintenance.engineers.map(e => e.completed),
+                            backgroundColor: '#10b981'
+                        },
+                        {
+                            label: 'قيد التنفيذ',
+                            data: maintenance.engineers.map(e => e.inProgress),
+                            backgroundColor: '#f59e0b'
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            rtl: true,
+                            labels: {
+                                font: { family: 'Tajawal' }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            stacked: true
+                        },
+                        y: {
+                            stacked: true,
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+
+        async function loadRecentMaintenance() {
+            try {
+                const requests = await apiService.getRecentMaintenanceRequests(5);
+                const tbody = document.getElementById('recentMaintenanceBody');
+                
+                tbody.innerHTML = requests.map(r => `
+                    <tr onclick="navigateTo('maintenance.html?id=${r.id}')" style="cursor: pointer;">
+                        <td>${r.requestNumber}</td>
+                        <td>${r.deviceName}</td>
+                        <td><span class="priority-badge priority-${r.priority}">${getPriorityText(r.priority)}</span></td>
+                        <td><span class="status-badge status-${r.status}">${getStatusText(r.status)}</span></td>
+                    </tr>
+                `).join('');
+            } catch (error) {
+                console.error('Error loading recent maintenance:', error);
+            }
+        }
+
+        async function loadCriticalAlerts() {
+            try {
+                const alerts = await apiService.getCriticalAlerts();
+                const container = document.getElementById('criticalAlertsList');
+                
+                if (alerts.length === 0) {
+                    container.innerHTML = '<p class="text-muted text-center">لا توجد تنبيهات حرجة</p>';
+                    return;
+                }
+
+                container.innerHTML = alerts.map(alert => `
+                    <div class="alert-item ${alert.type}">
+                        <div class="alert-icon">
+                            <i class="fas ${getAlertIcon(alert.type)}"></i>
+                        </div>
+                        <div class="alert-content">
+                            <p class="alert-message">${alert.message}</p>
+                            <span class="alert-time">${formatTimeAgo(alert.createdAt)}</span>
+                        </div>
+                    </div>
+                `).join('');
+            } catch (error) {
+                console.error('Error loading alerts:', error);
+            }
+        }
+
+        async function loadUsers() {
+            try {
+                const [users, departments] = await Promise.all([
+                    apiService.getUsers(),
+                    apiService.getDepartments()
+                ]);
+
+                const deptSelect = document.getElementById('userDepartment');
+                departments.forEach(d => {
+                    const option = document.createElement('option');
+                    option.value = d.id;
+                    option.textContent = d.name;
+                    deptSelect.appendChild(option);
+                });
+
+                renderUsers(users);
+            } catch (error) {
+                console.error('Error loading users:', error);
+            }
+        }
+
+        function renderUsers(users) {
+            const tbody = document.getElementById('usersTableBody');
+            
+            tbody.innerHTML = users.map(user => `
+                <tr>
+                    <td>
+                        <div class="user-cell">
+                            <div class="user-avatar-small">${user.name.charAt(0)}</div>
+                            <span>${user.name}</span>
+                        </div>
+                    </td>
+                    <td>${user.email}</td>
+                    <td><span class="badge badge-${user.role}">${getRoleText(user.role)}</span></td>
+                    <td>${user.departmentName || '-'}</td>
+                    <td><span class="status-dot ${user.isActive ? 'active' : 'inactive'}"></span>${user.isActive ? 'نشط' : 'معطل'}</td>
+                    <td>${user.lastLogin ? formatDateTime(user.lastLogin) : 'لم يسجل دخول'}</td>
+                    <td>
+                        <div class="action-buttons">
+                            <button class="btn btn-sm btn-outline" onclick="editUser('${user.id}')" title="تعديل">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="btn btn-sm btn-${user.isActive ? 'warning' : 'success'}" onclick="toggleUserStatus('${user.id}')" title="${user.isActive ? 'تعطيل' : 'تفعيل'}">
+                                <i class="fas fa-${user.isActive ? 'ban' : 'check'}"></i>
+                            </button>
+                            <button class="btn btn-sm btn-danger" onclick="deleteUser('${user.id}')" title="حذف">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function getRoleText(role) {
+            const texts = {
+                'admin': 'مدير',
+                'engineer': 'مهندس',
+                'medical_staff': 'كادر طبي',
+                'inventory_manager': 'مدير مخزون'
+            };
+            return texts[role] || role;
+        }
+
+        function getPriorityText(priority) {
+            const texts = {
+                'critical': 'حرجة',
+                'high': 'عالية',
+                'medium': 'متوسطة',
+                'low': 'منخفضة'
+            };
+            return texts[priority] || priority;
+        }
+
+        function getStatusText(status) {
+            const texts = {
+                'pending': 'قيد الانتظار',
+                'in_progress': 'قيد التنفيذ',
+                'completed': 'مكتمل',
+                'scheduled': 'مجدول'
+            };
+            return texts[status] || status;
+        }
+
+        function getAlertIcon(type) {
+            const icons = {
+                'critical': 'fa-exclamation-circle',
+                'warning': 'fa-exclamation-triangle',
+                'info': 'fa-info-circle',
+                'device': 'fa-laptop-medical',
+                'maintenance': 'fa-tools',
+                'inventory': 'fa-boxes'
+            };
+            return icons[type] || 'fa-bell';
+        }
+
+        function openAddUserModal() {
+            document.getElementById('userModalTitle').textContent = 'إضافة مستخدم جديد';
+            document.getElementById('userForm').reset();
+            document.getElementById('userId').value = '';
+            document.getElementById('userPassword').required = true;
+            document.getElementById('passwordGroup').style.display = 'block';
+            document.getElementById('userActive').checked = true;
+            openModal('userModal');
+        }
+
+        async function editUser(userId) {
+            try {
+                const user = await apiService.getUserById(userId);
+                document.getElementById('userModalTitle').textContent = 'تعديل المستخدم';
+                document.getElementById('userId').value = user.id;
+                document.getElementById('userFullName').value = user.name;
+                document.getElementById('userEmail').value = user.email;
+                document.getElementById('userRoleSelect').value = user.role;
+                document.getElementById('userDepartment').value = user.departmentId || '';
+                document.getElementById('userPhone').value = user.phone || '';
+                document.getElementById('userActive').checked = user.isActive;
+                document.getElementById('userPassword').required = false;
+                document.getElementById('passwordGroup').querySelector('label').innerHTML = 'كلمة المرور الجديدة (اتركها فارغة للإبقاء على الحالية)';
+                openModal('userModal');
+            } catch (error) {
+                showToast('خطأ في تحميل بيانات المستخدم', 'error');
+            }
+        }
+
+        async function submitUser(event) {
+            event.preventDefault();
+            
+            const userId = document.getElementById('userId').value;
+            const data = {
+                name: document.getElementById('userFullName').value,
+                email: document.getElementById('userEmail').value,
+                role: document.getElementById('userRoleSelect').value,
+                departmentId: document.getElementById('userDepartment').value || null,
+                phone: document.getElementById('userPhone').value,
+                isActive: document.getElementById('userActive').checked
+            };
+
+            const password = document.getElementById('userPassword').value;
+            if (password) {
+                data.password = password;
+            }
+
+            try {
+                if (userId) {
+                    await apiService.updateUser(userId, data);
+                    showToast('تم تحديث المستخدم بنجاح', 'success');
+                } else {
+                    await apiService.createUser(data);
+                    showToast('تم إنشاء المستخدم بنجاح', 'success');
+                }
+                closeModal('userModal');
+                loadUsers();
+            } catch (error) {
+                showToast('خطأ في حفظ البيانات', 'error');
+            }
+        }
+
+        async function toggleUserStatus(userId) {
+            try {
+                await apiService.toggleUserStatus(userId);
+                showToast('تم تحديث حالة المستخدم', 'success');
+                loadUsers();
+            } catch (error) {
+                showToast('خطأ في تحديث الحالة', 'error');
+            }
+        }
+
+        async function deleteUser(userId) {
+            if (!confirm('هل أنت متأكد من حذف هذا المستخدم؟')) return;
+            
+            try {
+                await apiService.deleteUser(userId);
+                showToast('تم حذف المستخدم بنجاح', 'success');
+                loadUsers();
+            } catch (error) {
+                showToast('خطأ في حذف المستخدم', 'error');
+            }
+        }
+
+        function openSettingModal(setting) {
+            const titles = {
+                'departments': 'إدارة الأقسام',
+                'deviceTypes': 'أنواع الأجهزة',
+                'suppliers': 'الموردين',
+                'maintenanceSchedule': 'جدولة الصيانة',
+                'notifications': 'إعدادات الإشعارات',
+                'backup': 'النسخ الاحتياطي'
+            };
+            
+            document.getElementById('settingsModalTitle').textContent = titles[setting];
+            loadSettingContent(setting);
+            openModal('settingsModal');
+        }
+
+        async function loadSettingContent(setting) {
+            const body = document.getElementById('settingsModalBody');
+            body.innerHTML = '<div class="loading-state"><div class="spinner"></div></div>';
+
+            try {
+                let content = '';
+                switch (setting) {
+                    case 'departments':
+                        const departments = await apiService.getDepartments();
+                        content = renderDepartmentsSettings(departments);
+                        break;
+                    case 'deviceTypes':
+                        const types = await apiService.getDeviceTypes();
+                        content = renderDeviceTypesSettings(types);
+                        break;
+                    case 'suppliers':
+                        const suppliers = await apiService.getSuppliers();
+                        content = renderSuppliersSettings(suppliers);
+                        break;
+                    case 'notifications':
+                        content = renderNotificationSettings();
+                        break;
+                    case 'backup':
+                        content = renderBackupSettings();
+                        break;
+                    default:
+                        content = '<p>قريباً...</p>';
+                }
+                body.innerHTML = content;
+            } catch (error) {
+                body.innerHTML = '<p class="text-danger">خطأ في تحميل البيانات</p>';
+            }
+        }
+
+        function renderDepartmentsSettings(departments) {
+            return `
+                <div class="settings-list">
+                    <div class="settings-actions">
+                        <button class="btn btn-primary btn-sm" onclick="addDepartment()">
+                            <i class="fas fa-plus"></i> إضافة قسم
+                        </button>
+                    </div>
+                    <table class="mini-table">
+                        <thead>
+                            <tr>
+                                <th>اسم القسم</th>
+                                <th>عدد الأجهزة</th>
+                                <th>الإجراءات</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${departments.map(d => `
+                                <tr>
+                                    <td>${d.name}</td>
+                                    <td>${d.devicesCount || 0}</td>
+                                    <td>
+                                        <button class="btn btn-sm btn-outline" onclick="editDepartment('${d.id}')">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button class="btn btn-sm btn-danger" onclick="deleteDepartment('${d.id}')">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                </div>
+            `;
+        }
+
+        function renderDeviceTypesSettings(types) {
+            return `
+                <div class="settings-list">
+                    <div class="settings-actions">
+                        <button class="btn btn-primary btn-sm" onclick="addDeviceType()">
+                            <i class="fas fa-plus"></i> إضافة نوع
+                        </button>
+                    </div>
+                    <table class="mini-table">
+                        <thead>
+                            <tr>
+                                <th>نوع الجهاز</th>
+                                <th>دورة الصيانة (يوم)</th>
+                                <th>الإجراءات</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${types.map(t => `
+                                <tr>
+                                    <td>${t.name}</td>
+                                    <td>${t.maintenanceCycle || '-'}</td>
+                                    <td>
+                                        <button class="btn btn-sm btn-outline" onclick="editDeviceType('${t.id}')">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                </div>
+            `;
+        }
+
+        function renderSuppliersSettings(suppliers) {
+            return `
+                <div class="settings-list">
+                    <div class="settings-actions">
+                        <button class="btn btn-primary btn-sm" onclick="addSupplier()">
+                            <i class="fas fa-plus"></i> إضافة مورد
+                        </button>
+                    </div>
+                    <table class="mini-table">
+                        <thead>
+                            <tr>
+                                <th>اسم المورد</th>
+                                <th>رقم الهاتف</th>
+                                <th>البريد الإلكتروني</th>
+                                <th>الإجراءات</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${suppliers.map(s => `
+                                <tr>
+                                    <td>${s.name}</td>
+                                    <td>${s.phone || '-'}</td>
+                                    <td>${s.email || '-'}</td>
+                                    <td>
+                                        <button class="btn btn-sm btn-outline" onclick="editSupplier('${s.id}')">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button class="btn btn-sm btn-danger" onclick="deleteSupplier('${s.id}')">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                </div>
+            `;
+        }
+
+        function renderNotificationSettings() {
+            return `
+                <div class="notification-settings">
+                    <div class="form-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox" checked>
+                            <span>إشعارات البريد الإلكتروني</span>
+                        </label>
+                    </div>
+                    <div class="form-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox" checked>
+                            <span>تنبيهات الصيانة المعلقة</span>
+                        </label>
+                    </div>
+                    <div class="form-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox" checked>
+                            <span>تنبيهات المخزون المنخفض</span>
+                        </label>
+                    </div>
+                    <div class="form-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox" checked>
+                            <span>تنبيهات الأعطال الحرجة</span>
+                        </label>
+                    </div>
+                    <div class="form-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox">
+                            <span>إشعارات SMS</span>
+                        </label>
+                    </div>
+                    <div class="form-actions">
+                        <button class="btn btn-primary" onclick="saveNotificationSettings()">حفظ الإعدادات</button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderBackupSettings() {
+            return `
+                <div class="backup-settings">
+                    <div class="backup-info">
+                        <p><strong>آخر نسخة احتياطية:</strong> ${formatDateTime(new Date())}</p>
+                        <p><strong>حجم قاعدة البيانات:</strong> 256 MB</p>
+                    </div>
+                    <div class="form-group">
+                        <label>جدولة النسخ الاحتياطي</label>
+                        <select>
+                            <option value="daily">يومياً</option>
+                            <option value="weekly" selected>أسبوعياً</option>
+                            <option value="monthly">شهرياً</option>
+                        </select>
+                    </div>
+                    <div class="backup-actions">
+                        <button class="btn btn-primary" onclick="createBackup()">
+                            <i class="fas fa-download"></i>
+                            إنشاء نسخة احتياطية الآن
+                        </button>
+                        <button class="btn btn-secondary" onclick="restoreBackup()">
+                            <i class="fas fa-upload"></i>
+                            استعادة من نسخة احتياطية
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function applyDateRange() {
+            loadDashboardData();
+        }
+
+        function exportReport() {
+            showToast('جاري إنشاء التقرير...', 'info');
+            // Implementation for report export
+            setTimeout(() => {
+                showToast('تم تصدير التقرير بنجاح', 'success');
+            }, 2000);
+        }
+
+        function navigateTo(url) {
+            window.location.href = url;
+        }
+    </script>
+</body>
+</html>

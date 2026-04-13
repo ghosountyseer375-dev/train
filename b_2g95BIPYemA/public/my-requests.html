@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>طلباتي - SMEMS</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <i class="fas fa-heartbeat"></i>
+                    <span>SMEMS</span>
+                </div>
+                <button class="sidebar-toggle" id="sidebarToggle">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </div>
+            <nav class="sidebar-nav" id="sidebarNav"></nav>
+            <div class="sidebar-footer">
+                <div class="user-info">
+                    <div class="user-avatar" id="userAvatar">م</div>
+                    <div class="user-details">
+                        <span class="user-name" id="userName">المستخدم</span>
+                        <span class="user-role" id="userRole">الدور</span>
+                    </div>
+                </div>
+                <button class="logout-btn" onclick="logout()">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>تسجيل الخروج</span>
+                </button>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="main-header">
+                <div class="header-right">
+                    <button class="mobile-menu-btn" id="mobileMenuBtn">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <h1 class="page-title">
+                        <i class="fas fa-clipboard-list"></i>
+                        طلباتي
+                    </h1>
+                </div>
+                <div class="header-left">
+                    <button class="btn btn-primary" onclick="openNewRequestModal()">
+                        <i class="fas fa-plus"></i>
+                        طلب صيانة جديد
+                    </button>
+                    <button class="notification-btn" id="notificationBtn">
+                        <i class="fas fa-bell"></i>
+                        <span class="notification-badge" id="notificationBadge">0</span>
+                    </button>
+                </div>
+            </header>
+
+            <div class="content-area">
+                <!-- Stats -->
+                <div class="stats-grid stats-4">
+                    <div class="stat-card stat-primary">
+                        <div class="stat-icon"><i class="fas fa-clipboard-list"></i></div>
+                        <div class="stat-info">
+                            <span class="stat-value" id="totalRequests">0</span>
+                            <span class="stat-label">إجمالي الطلبات</span>
+                        </div>
+                    </div>
+                    <div class="stat-card stat-warning">
+                        <div class="stat-icon"><i class="fas fa-clock"></i></div>
+                        <div class="stat-info">
+                            <span class="stat-value" id="pendingRequests">0</span>
+                            <span class="stat-label">قيد الانتظار</span>
+                        </div>
+                    </div>
+                    <div class="stat-card stat-info">
+                        <div class="stat-icon"><i class="fas fa-spinner"></i></div>
+                        <div class="stat-info">
+                            <span class="stat-value" id="inProgressRequests">0</span>
+                            <span class="stat-label">قيد التنفيذ</span>
+                        </div>
+                    </div>
+                    <div class="stat-card stat-success">
+                        <div class="stat-icon"><i class="fas fa-check-circle"></i></div>
+                        <div class="stat-info">
+                            <span class="stat-value" id="completedRequests">0</span>
+                            <span class="stat-label">مكتملة</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Filters -->
+                <div class="filters-section">
+                    <div class="filter-group">
+                        <label>الحالة:</label>
+                        <select id="filterStatus">
+                            <option value="">الكل</option>
+                            <option value="pending">قيد الانتظار</option>
+                            <option value="in_progress">قيد التنفيذ</option>
+                            <option value="completed">مكتمل</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label>الفترة:</label>
+                        <select id="filterPeriod">
+                            <option value="all">الكل</option>
+                            <option value="week">الأسبوع الماضي</option>
+                            <option value="month">الشهر الماضي</option>
+                            <option value="quarter">آخر 3 أشهر</option>
+                        </select>
+                    </div>
+                    <div class="search-box">
+                        <i class="fas fa-search"></i>
+                        <input type="text" id="searchRequests" placeholder="البحث عن طلب...">
+                    </div>
+                </div>
+
+                <!-- Requests List -->
+                <div class="requests-timeline" id="requestsContainer">
+                    <!-- Dynamic content -->
+                </div>
+
+                <!-- Loading State -->
+                <div class="loading-state" id="loadingState" style="display: none;">
+                    <div class="spinner"></div>
+                    <p>جاري التحميل...</p>
+                </div>
+
+                <!-- Empty State -->
+                <div class="empty-state" id="emptyState" style="display: none;">
+                    <i class="fas fa-clipboard-check"></i>
+                    <h3>لا توجد طلبات</h3>
+                    <p>لم تقم بإرسال أي طلبات صيانة بعد</p>
+                    <button class="btn btn-primary" onclick="openNewRequestModal()">
+                        <i class="fas fa-plus"></i>
+                        طلب صيانة جديد
+                    </button>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- New Request Modal -->
+    <div class="modal" id="newRequestModal">
+        <div class="modal-content modal-lg">
+            <div class="modal-header">
+                <h2>طلب صيانة جديد</h2>
+                <button class="modal-close" onclick="closeModal('newRequestModal')">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="newRequestForm" onsubmit="submitNewRequest(event)">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>الجهاز <span class="required">*</span></label>
+                            <select id="requestDevice" required>
+                                <option value="">اختر الجهاز</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>نوع المشكلة <span class="required">*</span></label>
+                            <select id="requestIssueType" required>
+                                <option value="">اختر النوع</option>
+                                <option value="malfunction">خلل في التشغيل</option>
+                                <option value="damage">تلف مادي</option>
+                                <option value="calibration">يحتاج معايرة</option>
+                                <option value="software">مشكلة برمجية</option>
+                                <option value="electrical">مشكلة كهربائية</option>
+                                <option value="mechanical">مشكلة ميكانيكية</option>
+                                <option value="other">أخرى</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>الأولوية <span class="required">*</span></label>
+                            <select id="requestPriority" required>
+                                <option value="low">منخفضة</option>
+                                <option value="medium" selected>متوسطة</option>
+                                <option value="high">عالية</option>
+                                <option value="critical">حرجة</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>هل يوجد جهاز بديل؟</label>
+                            <select id="requestAlternative">
+                                <option value="yes">نعم</option>
+                                <option value="no">لا</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>وصف المشكلة <span class="required">*</span></label>
+                        <textarea id="requestDescription" rows="4" required placeholder="صف المشكلة بالتفصيل..."></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>إرفاق صورة (اختياري)</label>
+                        <div class="file-upload" onclick="document.getElementById('requestImage').click()">
+                            <i class="fas fa-cloud-upload-alt"></i>
+                            <p>اضغط لرفع صورة أو <span>اسحب الملف هنا</span></p>
+                            <input type="file" id="requestImage" accept="image/*" style="display: none;">
+                        </div>
+                        <div id="imagePreview" style="display: none; margin-top: 0.5rem;">
+                            <img id="previewImg" style="max-width: 200px; border-radius: 8px;">
+                            <button type="button" class="btn btn-sm btn-danger" onclick="removeImage()">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-secondary" onclick="closeModal('newRequestModal')">إلغاء</button>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-paper-plane"></i>
+                            إرسال الطلب
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Request Details Modal -->
+    <div class="modal" id="requestDetailsModal">
+        <div class="modal-content modal-lg">
+            <div class="modal-header">
+                <h2>تفاصيل الطلب</h2>
+                <button class="modal-close" onclick="closeModal('requestDetailsModal')">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body" id="requestDetailsBody">
+                <!-- Dynamic content -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Notifications Panel -->
+    <div class="notifications-panel" id="notificationsPanel">
+        <div class="notifications-header">
+            <h3>الإشعارات</h3>
+            <button class="mark-all-read" onclick="markAllAsRead()">تحديد الكل كمقروء</button>
+        </div>
+        <div class="notifications-list" id="notificationsList"></div>
+    </div>
+
+    <div id="toast" class="toast"></div>
+
+    <script src="apiService.js"></script>
+    <script src="script.js"></script>
+    <script>
+        let allRequests = [];
+        const currentUser = JSON.parse(sessionStorage.getItem('currentUser') || '{}');
+
+        document.addEventListener('DOMContentLoaded', function() {
+            checkAuth();
+            initializeSidebar();
+            loadMyRequests();
+            loadDevicesForForm();
+            setupEventListeners();
+        });
+
+        function setupEventListeners() {
+            document.getElementById('filterStatus').addEventListener('change', filterRequests);
+            document.getElementById('filterPeriod').addEventListener('change', filterRequests);
+            document.getElementById('searchRequests').addEventListener('input', debounce(filterRequests, 300));
+            
+            document.getElementById('requestImage').addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        document.getElementById('previewImg').src = e.target.result;
+                        document.getElementById('imagePreview').style.display = 'block';
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+        }
+
+        function removeImage() {
+            document.getElementById('requestImage').value = '';
+            document.getElementById('imagePreview').style.display = 'none';
+        }
+
+        async function loadMyRequests() {
+            showLoading(true);
+            try {
+                const requests = JSON.parse(localStorage.getItem('maintenanceRequests') || '[]');
+                // Filter requests by current user's department
+                allRequests = requests.filter(r => 
+                    r.department === currentUser.department || 
+                    r.requestedBy === currentUser.name
+                );
+                updateStats();
+                renderRequests(allRequests);
+            } catch (error) {
+                showToast('خطأ في تحميل الطلبات', 'error');
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        function updateStats() {
+            document.getElementById('totalRequests').textContent = allRequests.length;
+            document.getElementById('pendingRequests').textContent = allRequests.filter(r => r.status === 'pending').length;
+            document.getElementById('inProgressRequests').textContent = allRequests.filter(r => r.status === 'in_progress').length;
+            document.getElementById('completedRequests').textContent = allRequests.filter(r => r.status === 'completed').length;
+        }
+
+        function filterRequests() {
+            const status = document.getElementById('filterStatus').value;
+            const period = document.getElementById('filterPeriod').value;
+            const search = document.getElementById('searchRequests').value.toLowerCase();
+
+            let filtered = allRequests.filter(request => {
+                const matchStatus = !status || request.status === status;
+                const matchSearch = !search || 
+                    request.deviceName.toLowerCase().includes(search) ||
+                    request.description.toLowerCase().includes(search) ||
+                    request.id.toLowerCase().includes(search);
+                
+                let matchPeriod = true;
+                if (period !== 'all') {
+                    const requestDate = new Date(request.requestDate);
+                    const now = new Date();
+                    const diffDays = Math.floor((now - requestDate) / (1000 * 60 * 60 * 24));
+                    
+                    if (period === 'week' && diffDays > 7) matchPeriod = false;
+                    if (period === 'month' && diffDays > 30) matchPeriod = false;
+                    if (period === 'quarter' && diffDays > 90) matchPeriod = false;
+                }
+
+                return matchStatus && matchSearch && matchPeriod;
+            });
+
+            renderRequests(filtered);
+        }
+
+        function renderRequests(requests) {
+            const container = document.getElementById('requestsContainer');
+            const emptyState = document.getElementById('emptyState');
+
+            if (requests.length === 0) {
+                container.innerHTML = '';
+                emptyState.style.display = 'flex';
+                return;
+            }
+
+            emptyState.style.display = 'none';
+
+            container.innerHTML = requests.map(request => `
+                <div class="request-card" onclick="viewRequestDetails('${request.id}')">
+                    <div class="request-header">
+                        <div>
+                            <span class="request-id">#${request.id}</span>
+                            <span class="request-date">
+                                <i class="fas fa-calendar"></i>
+                                ${formatDate(request.requestDate)}
+                            </span>
+                        </div>
+                        <span class="request-status ${request.status}">
+                            ${getStatusText(request.status)}
+                        </span>
+                    </div>
+                    <div class="request-body">
+                        <div class="request-device">
+                            <div class="request-device-icon">
+                                <i class="fas fa-laptop-medical"></i>
+                            </div>
+                            <div class="request-device-info">
+                                <h4>${request.deviceName}</h4>
+                                <span>${request.serialNumber || ''}</span>
+                            </div>
+                        </div>
+                        <div class="request-description">
+                            ${request.description.substring(0, 150)}${request.description.length > 150 ? '...' : ''}
+                        </div>
+                    </div>
+                    <div class="request-footer">
+                        <div class="request-priority">
+                            <span class="badge ${getPriorityClass(request.priority)}">
+                                ${getPriorityText(request.priority)}
+                            </span>
+                            <span class="badge ${request.hasAlternative ? 'badge-success' : 'badge-danger'}">
+                                ${request.hasAlternative ? 'يوجد بديل' : 'لا يوجد بديل'}
+                            </span>
+                        </div>
+                        ${request.assignedTo ? `
+                            <span style="font-size: 0.85rem; color: var(--gray-500);">
+                                <i class="fas fa-user"></i>
+                                ${request.assignedTo}
+                            </span>
+                        ` : ''}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function viewRequestDetails(requestId) {
+            const request = allRequests.find(r => r.id === requestId);
+            if (!request) return;
+
+            const modalBody = document.getElementById('requestDetailsBody');
+            modalBody.innerHTML = `
+                <div class="detail-section">
+                    <h3 class="detail-section-title">معلومات الطلب</h3>
+                    <div class="detail-grid">
+                        <div class="detail-item">
+                            <span class="detail-label">رقم الطلب</span>
+                            <span class="detail-value">${request.id}</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">تاريخ الطلب</span>
+                            <span class="detail-value">${formatDate(request.requestDate)}</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">الحالة</span>
+                            <span class="badge ${getStatusClass(request.status)}">${getStatusText(request.status)}</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">الأولوية</span>
+                            <span class="badge ${getPriorityClass(request.priority)}">${getPriorityText(request.priority)}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="detail-section">
+                    <h3 class="detail-section-title">معلومات الجهاز</h3>
+                    <div class="detail-grid">
+                        <div class="detail-item">
+                            <span class="detail-label">اسم الجهاز</span>
+                            <span class="detail-value">${request.deviceName}</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">الرقم التسلسلي</span>
+                            <span class="detail-value">${request.serialNumber || '-'}</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">القسم</span>
+                            <span class="detail-value">${getDepartmentText(request.department)}</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">بديل متاح</span>
+                            <span class="detail-value">${request.hasAlternative ? 'نعم' : 'لا'}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="detail-section">
+                    <h3 class="detail-section-title">تفاصيل المشكلة</h3>
+                    <div class="detail-item" style="margin-bottom: 1rem;">
+                        <span class="detail-label">نوع المشكلة</span>
+                        <span class="detail-value">${getIssueTypeText(request.issueType)}</span>
+                    </div>
+                    <div class="request-description" style="background: var(--gray-50); padding: 1rem; border-radius: var(--radius);">
+                        ${request.description}
+                    </div>
+                </div>
+
+                ${request.assignedTo ? `
+                    <div class="detail-section">
+                        <h3 class="detail-section-title">معلومات الصيانة</h3>
+                        <div class="detail-grid">
+                            <div class="detail-item">
+                                <span class="detail-label">المهندس المسؤول</span>
+                                <span class="detail-value">${request.assignedTo}</span>
+                            </div>
+                            ${request.startDate ? `
+                                <div class="detail-item">
+                                    <span class="detail-label">تاريخ البدء</span>
+                                    <span class="detail-value">${formatDate(request.startDate)}</span>
+                                </div>
+                            ` : ''}
+                            ${request.completedDate ? `
+                                <div class="detail-item">
+                                    <span class="detail-label">تاريخ الانتهاء</span>
+                                    <span class="detail-value">${formatDate(request.completedDate)}</span>
+                                </div>
+                            ` : ''}
+                        </div>
+                        ${request.notes ? `
+                            <div class="detail-item" style="margin-top: 1rem;">
+                                <span class="detail-label">ملاحظات المهندس</span>
+                                <div class="request-description" style="background: var(--info-light); padding: 1rem; border-radius: var(--radius); margin-top: 0.5rem;">
+                                    ${request.notes}
+                                </div>
+                            </div>
+                        ` : ''}
+                    </div>
+                ` : ''}
+
+                <div class="timeline" style="margin-top: 2rem;">
+                    <h3 class="detail-section-title">سجل الحالة</h3>
+                    <div class="timeline-item">
+                        <div class="timeline-date">${formatDate(request.requestDate)}</div>
+                        <div class="timeline-title">تم إنشاء الطلب</div>
+                        <div class="timeline-desc">تم رفع طلب الصيانة بواسطة ${request.requestedBy}</div>
+                    </div>
+                    ${request.startDate ? `
+                        <div class="timeline-item">
+                            <div class="timeline-date">${formatDate(request.startDate)}</div>
+                            <div class="timeline-title">بدء الصيانة</div>
+                            <div class="timeline-desc">تم تعيين ${request.assignedTo} وبدء العمل</div>
+                        </div>
+                    ` : ''}
+                    ${request.completedDate ? `
+                        <div class="timeline-item">
+                            <div class="timeline-date">${formatDate(request.completedDate)}</div>
+                            <div class="timeline-title">اكتمال الصيانة</div>
+                            <div class="timeline-desc">تمت الصيانة بنجاح</div>
+                        </div>
+                    ` : ''}
+                </div>
+            `;
+
+            openModal('requestDetailsModal');
+        }
+
+        async function loadDevicesForForm() {
+            try {
+                const devices = JSON.parse(localStorage.getItem('devices') || '[]');
+                const userDevices = devices.filter(d => 
+                    d.department === currentUser.department || 
+                    currentUser.role === 'admin' || 
+                    currentUser.role === 'engineer'
+                );
+                
+                const select = document.getElementById('requestDevice');
+                userDevices.forEach(device => {
+                    const option = document.createElement('option');
+                    option.value = device.id;
+                    option.textContent = `${device.name} - ${device.serialNumber}`;
+                    option.dataset.name = device.name;
+                    option.dataset.serial = device.serialNumber;
+                    option.dataset.department = device.department;
+                    select.appendChild(option);
+                });
+            } catch (error) {
+                console.error('Error loading devices:', error);
+            }
+        }
+
+        function openNewRequestModal() {
+            document.getElementById('newRequestForm').reset();
+            document.getElementById('imagePreview').style.display = 'none';
+            openModal('newRequestModal');
+        }
+
+        async function submitNewRequest(event) {
+            event.preventDefault();
+
+            const deviceSelect = document.getElementById('requestDevice');
+            const selectedOption = deviceSelect.options[deviceSelect.selectedIndex];
+
+            const newRequest = {
+                id: 'MR' + Date.now().toString(36).toUpperCase(),
+                deviceId: deviceSelect.value,
+                deviceName: selectedOption.dataset.name,
+                serialNumber: selectedOption.dataset.serial,
+                department: selectedOption.dataset.department || currentUser.department,
+                issueType: document.getElementById('requestIssueType').value,
+                description: document.getElementById('requestDescription').value,
+                priority: document.getElementById('requestPriority').value,
+                status: 'pending',
+                requestedBy: currentUser.name,
+                requestDate: new Date().toISOString().split('T')[0],
+                assignedTo: null,
+                startDate: null,
+                completedDate: null,
+                notes: '',
+                partsUsed: [],
+                hasAlternative: document.getElementById('requestAlternative').value === 'yes',
+                images: []
+            };
+
+            // Save to localStorage
+            const requests = JSON.parse(localStorage.getItem('maintenanceRequests') || '[]');
+            requests.unshift(newRequest);
+            localStorage.setItem('maintenanceRequests', JSON.stringify(requests));
+
+            // Add notification
+            const notifications = JSON.parse(localStorage.getItem('notifications') || '[]');
+            notifications.unshift({
+                id: 'N' + Date.now().toString(36).toUpperCase(),
+                type: 'maintenance',
+                title: 'طلب صيانة جديد',
+                message: `تم إنشاء طلب صيانة لجهاز ${newRequest.deviceName}`,
+                date: new Date().toISOString(),
+                read: false,
+                forRoles: ['engineer', 'admin']
+            });
+            localStorage.setItem('notifications', JSON.stringify(notifications));
+
+            closeModal('newRequestModal');
+            showToast('تم إرسال طلب الصيانة بنجاح', 'success');
+            await loadMyRequests();
+        }
+
+        function getStatusClass(status) {
+            const classes = {
+                'pending': 'badge-warning',
+                'in_progress': 'badge-info',
+                'completed': 'badge-success',
+                'cancelled': 'badge-danger'
+            };
+            return classes[status] || 'badge-secondary';
+        }
+
+        function showLoading(show) {
+            document.getElementById('loadingState').style.display = show ? 'flex' : 'none';
+        }
+    </script>
+</body>
+</html>

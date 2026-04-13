@@ -1,0 +1,766 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>الأجهزة الطبية - SMEMS</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <i class="fas fa-heartbeat"></i>
+                    <span>SMEMS</span>
+                </div>
+                <button class="sidebar-toggle" id="sidebarToggle">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </div>
+            <nav class="sidebar-nav" id="sidebarNav">
+                <!-- سيتم ملؤها ديناميكياً -->
+            </nav>
+            <div class="sidebar-footer">
+                <div class="user-info">
+                    <div class="user-avatar" id="userAvatar">م</div>
+                    <div class="user-details">
+                        <span class="user-name" id="userName">المستخدم</span>
+                        <span class="user-role" id="userRole">الدور</span>
+                    </div>
+                </div>
+                <button class="logout-btn" onclick="logout()">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>تسجيل الخروج</span>
+                </button>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Header -->
+            <header class="main-header">
+                <div class="header-right">
+                    <button class="mobile-menu-btn" id="mobileMenuBtn">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <h1 class="page-title">
+                        <i class="fas fa-laptop-medical"></i>
+                        الأجهزة الطبية
+                    </h1>
+                </div>
+                <div class="header-left">
+                    <div class="search-box">
+                        <i class="fas fa-search"></i>
+                        <input type="text" id="searchDevices" placeholder="البحث عن جهاز...">
+                    </div>
+                    <button class="notification-btn" id="notificationBtn">
+                        <i class="fas fa-bell"></i>
+                        <span class="notification-badge" id="notificationBadge">0</span>
+                    </button>
+                </div>
+            </header>
+
+            <!-- Content Area -->
+            <div class="content-area">
+                <!-- Filters Section -->
+                <div class="filters-section">
+                    <div class="filter-group">
+                        <label>القسم:</label>
+                        <select id="filterDepartment">
+                            <option value="">جميع الأقسام</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label>حالة الجهاز:</label>
+                        <select id="filterStatus">
+                            <option value="">جميع الحالات</option>
+                            <option value="working">يعمل</option>
+                            <option value="maintenance">تحت الصيانة</option>
+                            <option value="broken">معطل</option>
+                            <option value="reserved">محجوز</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label>النوع:</label>
+                        <select id="filterType">
+                            <option value="">جميع الأنواع</option>
+                        </select>
+                    </div>
+                    <button class="btn btn-secondary" onclick="resetFilters()">
+                        <i class="fas fa-redo"></i>
+                        إعادة تعيين
+                    </button>
+                </div>
+
+                <!-- Stats Cards -->
+                <div class="stats-grid">
+                    <div class="stat-card stat-total">
+                        <div class="stat-icon">
+                            <i class="fas fa-laptop-medical"></i>
+                        </div>
+                        <div class="stat-info">
+                            <span class="stat-value" id="totalDevices">0</span>
+                            <span class="stat-label">إجمالي الأجهزة</span>
+                        </div>
+                    </div>
+                    <div class="stat-card stat-working">
+                        <div class="stat-icon">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                        <div class="stat-info">
+                            <span class="stat-value" id="workingDevices">0</span>
+                            <span class="stat-label">تعمل</span>
+                        </div>
+                    </div>
+                    <div class="stat-card stat-maintenance">
+                        <div class="stat-icon">
+                            <i class="fas fa-tools"></i>
+                        </div>
+                        <div class="stat-info">
+                            <span class="stat-value" id="maintenanceDevices">0</span>
+                            <span class="stat-label">تحت الصيانة</span>
+                        </div>
+                    </div>
+                    <div class="stat-card stat-broken">
+                        <div class="stat-icon">
+                            <i class="fas fa-exclamation-triangle"></i>
+                        </div>
+                        <div class="stat-info">
+                            <span class="stat-value" id="brokenDevices">0</span>
+                            <span class="stat-label">معطلة</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- View Toggle -->
+                <div class="view-controls">
+                    <div class="view-toggle">
+                        <button class="view-btn active" data-view="grid" onclick="setView('grid')">
+                            <i class="fas fa-th-large"></i>
+                        </button>
+                        <button class="view-btn" data-view="list" onclick="setView('list')">
+                            <i class="fas fa-list"></i>
+                        </button>
+                    </div>
+                    <div class="results-count">
+                        <span id="resultsCount">0</span> جهاز
+                    </div>
+                </div>
+
+                <!-- Devices Grid -->
+                <div class="devices-container" id="devicesContainer">
+                    <div class="devices-grid" id="devicesGrid">
+                        <!-- سيتم ملؤها ديناميكياً -->
+                    </div>
+                </div>
+
+                <!-- Loading State -->
+                <div class="loading-state" id="loadingState" style="display: none;">
+                    <div class="spinner"></div>
+                    <p>جاري تحميل الأجهزة...</p>
+                </div>
+
+                <!-- Empty State -->
+                <div class="empty-state" id="emptyState" style="display: none;">
+                    <i class="fas fa-laptop-medical"></i>
+                    <h3>لا توجد أجهزة</h3>
+                    <p>لم يتم العثور على أجهزة تطابق معايير البحث</p>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Device Details Modal -->
+    <div class="modal" id="deviceModal">
+        <div class="modal-content modal-lg">
+            <div class="modal-header">
+                <h2 id="modalTitle">تفاصيل الجهاز</h2>
+                <button class="modal-close" onclick="closeModal('deviceModal')">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body" id="deviceModalBody">
+                <!-- سيتم ملؤه ديناميكياً -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Report Issue Modal -->
+    <div class="modal" id="reportModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>الإبلاغ عن عطل</h2>
+                <button class="modal-close" onclick="closeModal('reportModal')">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="reportForm" onsubmit="submitReport(event)">
+                    <input type="hidden" id="reportDeviceId">
+                    <div class="form-group">
+                        <label>الجهاز</label>
+                        <input type="text" id="reportDeviceName" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label>نوع المشكلة <span class="required">*</span></label>
+                        <select id="reportType" required>
+                            <option value="">اختر نوع المشكلة</option>
+                            <option value="malfunction">خلل في التشغيل</option>
+                            <option value="damage">تلف مادي</option>
+                            <option value="calibration">يحتاج معايرة</option>
+                            <option value="software">مشكلة برمجية</option>
+                            <option value="other">أخرى</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>الأولوية <span class="required">*</span></label>
+                        <select id="reportPriority" required>
+                            <option value="low">منخفضة</option>
+                            <option value="medium" selected>متوسطة</option>
+                            <option value="high">عالية</option>
+                            <option value="critical">حرجة</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>وصف المشكلة <span class="required">*</span></label>
+                        <textarea id="reportDescription" rows="4" required placeholder="صف المشكلة بالتفصيل..."></textarea>
+                    </div>
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-secondary" onclick="closeModal('reportModal')">إلغاء</button>
+                        <button type="submit" class="btn btn-danger">
+                            <i class="fas fa-exclamation-circle"></i>
+                            إرسال البلاغ
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Reserve Device Modal -->
+    <div class="modal" id="reserveModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>حجز الجهاز</h2>
+                <button class="modal-close" onclick="closeModal('reserveModal')">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="reserveForm" onsubmit="submitReservation(event)">
+                    <input type="hidden" id="reserveDeviceId">
+                    <div class="form-group">
+                        <label>الجهاز</label>
+                        <input type="text" id="reserveDeviceName" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label>تاريخ البداية <span class="required">*</span></label>
+                        <input type="datetime-local" id="reserveStartDate" required>
+                    </div>
+                    <div class="form-group">
+                        <label>تاريخ النهاية <span class="required">*</span></label>
+                        <input type="datetime-local" id="reserveEndDate" required>
+                    </div>
+                    <div class="form-group">
+                        <label>سبب الحجز <span class="required">*</span></label>
+                        <textarea id="reserveReason" rows="3" required placeholder="حدد سبب الحجز..."></textarea>
+                    </div>
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-secondary" onclick="closeModal('reserveModal')">إلغاء</button>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-calendar-check"></i>
+                            تأكيد الحجز
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notifications Panel -->
+    <div class="notifications-panel" id="notificationsPanel">
+        <div class="notifications-header">
+            <h3>الإشعارات</h3>
+            <button class="mark-all-read" onclick="markAllAsRead()">تحديد الكل كمقروء</button>
+        </div>
+        <div class="notifications-list" id="notificationsList">
+            <!-- سيتم ملؤها ديناميكياً -->
+        </div>
+    </div>
+
+    <script src="apiService.js"></script>
+    <script src="script.js"></script>
+    <script>
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', function() {
+            checkAuth();
+            initializeSidebar();
+            loadDevices();
+            loadFilters();
+            setupEventListeners();
+            setupPermissions();
+        });
+
+        let currentView = 'grid';
+        let allDevices = [];
+        const currentUser = JSON.parse(sessionStorage.getItem('currentUser') || '{}');
+
+        function setupPermissions() {
+            // Hide add device button for non-admin users
+            const addDeviceBtn = document.querySelector('.btn.btn-primary[onclick*="addDevice"]');
+            if (addDeviceBtn && !['admin'].includes(currentUser.role)) {
+                addDeviceBtn.style.display = 'none';
+            }
+        }
+
+        function setupEventListeners() {
+            // Search
+            document.getElementById('searchDevices').addEventListener('input', debounce(filterDevices, 300));
+            
+            // Filters
+            document.getElementById('filterDepartment').addEventListener('change', filterDevices);
+            document.getElementById('filterStatus').addEventListener('change', filterDevices);
+            document.getElementById('filterType').addEventListener('change', filterDevices);
+        }
+
+        async function loadFilters() {
+            try {
+                const departments = await apiService.getDepartments();
+                const departmentSelect = document.getElementById('filterDepartment');
+                departments.forEach(dept => {
+                    const option = document.createElement('option');
+                    option.value = dept.id;
+                    option.textContent = dept.name;
+                    departmentSelect.appendChild(option);
+                });
+
+                const types = await apiService.getDeviceTypes();
+                const typeSelect = document.getElementById('filterType');
+                types.forEach(type => {
+                    const option = document.createElement('option');
+                    option.value = type.id;
+                    option.textContent = type.name;
+                    typeSelect.appendChild(option);
+                });
+            } catch (error) {
+                console.error('Error loading filters:', error);
+            }
+        }
+
+        async function loadDevices() {
+            showLoading(true);
+            try {
+                let devices = JSON.parse(localStorage.getItem('devices') || '[]');
+                
+                // Filter devices based on user role
+                if (currentUser.role === 'medical_staff') {
+                    // Staff sees only their department's devices
+                    devices = devices.filter(d => d.department === currentUser.department);
+                }
+                // Admin, Engineer, and Inventory Manager see all devices
+                
+                allDevices = devices.map(d => ({
+                    ...d,
+                    departmentName: getDepartmentText(d.department)
+                }));
+                
+                updateStats(allDevices);
+                renderDevices(allDevices);
+            } catch (error) {
+                showToast('خطأ في تحميل الأجهزة', 'error');
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        function updateStats(devices) {
+            document.getElementById('totalDevices').textContent = devices.length;
+            document.getElementById('workingDevices').textContent = devices.filter(d => d.status === 'working').length;
+            document.getElementById('maintenanceDevices').textContent = devices.filter(d => d.status === 'maintenance').length;
+            document.getElementById('brokenDevices').textContent = devices.filter(d => d.status === 'broken').length;
+        }
+
+        function filterDevices() {
+            const search = document.getElementById('searchDevices').value.toLowerCase();
+            const department = document.getElementById('filterDepartment').value;
+            const status = document.getElementById('filterStatus').value;
+            const type = document.getElementById('filterType').value;
+
+            let filtered = allDevices.filter(device => {
+                const matchSearch = !search || 
+                    device.name.toLowerCase().includes(search) ||
+                    device.serialNumber.toLowerCase().includes(search) ||
+                    device.model.toLowerCase().includes(search);
+                const matchDepartment = !department || device.departmentId === department;
+                const matchStatus = !status || device.status === status;
+                const matchType = !type || device.typeId === type;
+
+                return matchSearch && matchDepartment && matchStatus && matchType;
+            });
+
+            renderDevices(filtered);
+        }
+
+        function renderDevices(devices) {
+            const container = document.getElementById('devicesGrid');
+            const emptyState = document.getElementById('emptyState');
+            
+            document.getElementById('resultsCount').textContent = devices.length;
+
+            if (devices.length === 0) {
+                container.innerHTML = '';
+                emptyState.style.display = 'flex';
+                return;
+            }
+
+            emptyState.style.display = 'none';
+            container.className = currentView === 'grid' ? 'devices-grid' : 'devices-list';
+
+            container.innerHTML = devices.map(device => `
+                <div class="device-card ${currentView === 'list' ? 'list-view' : ''}" data-id="${device.id}">
+                    <div class="device-header">
+                        <div class="device-icon ${device.status}">
+                            <i class="fas ${getDeviceIcon(device.type)}"></i>
+                        </div>
+                        <div class="device-status status-${device.status}">
+                            ${getStatusText(device.status)}
+                        </div>
+                    </div>
+                    <div class="device-body">
+                        <h3 class="device-name">${device.name}</h3>
+                        <p class="device-model">${device.manufacturer} - ${device.model}</p>
+                        <div class="device-info">
+                            <span><i class="fas fa-barcode"></i> ${device.serialNumber}</span>
+                            <span><i class="fas fa-hospital"></i> ${device.departmentName}</span>
+                            <span><i class="fas fa-map-marker-alt"></i> ${device.location}</span>
+                        </div>
+                        ${device.lastMaintenanceDate ? `
+                        <div class="device-maintenance">
+                            <i class="fas fa-wrench"></i>
+                            آخر صيانة: ${formatDate(device.lastMaintenanceDate)}
+                        </div>
+                        ` : ''}
+                    </div>
+                    <div class="device-actions">
+                        <button class="btn btn-sm btn-outline" onclick="viewDevice('${device.id}')" title="عرض التفاصيل">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                        ${device.status === 'working' ? `
+                        <button class="btn btn-sm btn-primary" onclick="openReserveModal('${device.id}', '${device.name}')" title="حجز">
+                            <i class="fas fa-calendar-plus"></i>
+                        </button>
+                        ` : ''}
+                        <button class="btn btn-sm btn-danger" onclick="openReportModal('${device.id}', '${device.name}')" title="الإبلاغ عن عطل">
+                            <i class="fas fa-exclamation-triangle"></i>
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function getDeviceIcon(type) {
+            const icons = {
+                'diagnostic': 'fa-stethoscope',
+                'imaging': 'fa-x-ray',
+                'monitoring': 'fa-heartbeat',
+                'therapeutic': 'fa-syringe',
+                'laboratory': 'fa-flask',
+                'surgical': 'fa-cut',
+                'life-support': 'fa-lungs',
+                'dental': 'fa-tooth'
+            };
+            return icons[type] || 'fa-laptop-medical';
+        }
+
+        function getStatusText(status) {
+            const texts = {
+                'working': 'يعمل',
+                'maintenance': 'تحت الصيانة',
+                'broken': 'معطل',
+                'reserved': 'محجوز'
+            };
+            return texts[status] || status;
+        }
+
+        function setView(view) {
+            currentView = view;
+            document.querySelectorAll('.view-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.view === view);
+            });
+            filterDevices();
+        }
+
+        function resetFilters() {
+            document.getElementById('searchDevices').value = '';
+            document.getElementById('filterDepartment').value = '';
+            document.getElementById('filterStatus').value = '';
+            document.getElementById('filterType').value = '';
+            renderDevices(allDevices);
+        }
+
+        async function viewDevice(deviceId) {
+            try {
+                const devices = JSON.parse(localStorage.getItem('devices') || '[]');
+                const device = devices.find(d => d.id === deviceId);
+                if (!device) {
+                    showToast('الجهاز غير موجود', 'error');
+                    return;
+                }
+                
+                // Get maintenance history
+                const maintenanceHistory = JSON.parse(localStorage.getItem('maintenanceHistory') || '[]')
+                    .filter(h => h.deviceId === deviceId);
+                
+                // Get accessories/parts used
+                const inventory = JSON.parse(localStorage.getItem('inventory') || '[]');
+                
+                const modalBody = document.getElementById('deviceModalBody');
+                
+                const warrantyExpiry = new Date(device.warrantyExpiry);
+                const warrantyActive = warrantyExpiry > new Date();
+                
+                modalBody.innerHTML = `
+                    <div class="device-details">
+                        <div class="detail-header" style="display: flex; gap: 1rem; align-items: center; margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 2px solid var(--primary-color);">
+                            <div class="device-icon large ${device.status}" style="width: 60px; height: 60px; font-size: 1.5rem;">
+                                <i class="fas ${getDeviceIcon(device.category)}"></i>
+                            </div>
+                            <div class="detail-title">
+                                <h2 style="margin: 0; font-size: 1.25rem;">${device.name}</h2>
+                                <span class="device-status status-${device.status}" style="display: inline-block; margin-top: 0.5rem;">
+                                    ${getStatusText(device.status === 'operational' ? 'working' : device.status)}
+                                </span>
+                                <span class="badge ${device.riskLevel === 'critical' ? 'badge-danger' : device.riskLevel === 'high' ? 'badge-warning' : 'badge-info'}" style="margin-right: 0.5rem;">
+                                    ${device.riskLevel === 'critical' ? 'حرج' : device.riskLevel === 'high' ? 'عالي' : device.riskLevel === 'medium' ? 'متوسط' : 'منخفض'}
+                                </span>
+                            </div>
+                        </div>
+                        
+                        <div class="detail-grid" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.5rem;">
+                            <div class="detail-section">
+                                <h4 style="color: var(--primary-color); border-bottom: 2px solid var(--primary-color); padding-bottom: 0.5rem; display: inline-block;"><i class="fas fa-info-circle"></i> معلومات أساسية</h4>
+                                <div class="detail-row" style="display: flex; justify-content: space-between; padding: 0.5rem 0; border-bottom: 1px solid var(--gray-100);">
+                                    <span class="detail-label" style="color: var(--gray-500);">الرقم التسلسلي</span>
+                                    <span class="detail-value" style="font-weight: 500;">${device.serialNumber}</span>
+                                </div>
+                                <div class="detail-row" style="display: flex; justify-content: space-between; padding: 0.5rem 0; border-bottom: 1px solid var(--gray-100);">
+                                    <span class="detail-label" style="color: var(--gray-500);">الشركة المصنعة</span>
+                                    <span class="detail-value" style="font-weight: 500;">${device.manufacturer}</span>
+                                </div>
+                                <div class="detail-row" style="display: flex; justify-content: space-between; padding: 0.5rem 0; border-bottom: 1px solid var(--gray-100);">
+                                    <span class="detail-label" style="color: var(--gray-500);">الموديل</span>
+                                    <span class="detail-value" style="font-weight: 500;">${device.model}</span>
+                                </div>
+                                <div class="detail-row" style="display: flex; justify-content: space-between; padding: 0.5rem 0;">
+                                    <span class="detail-label" style="color: var(--gray-500);">الفئة</span>
+                                    <span class="detail-value" style="font-weight: 500;">${device.category || '-'}</span>
+                                </div>
+                            </div>
+                            
+                            <div class="detail-section">
+                                <h4 style="color: var(--primary-color); border-bottom: 2px solid var(--primary-color); padding-bottom: 0.5rem; display: inline-block;"><i class="fas fa-map-marker-alt"></i> الموقع</h4>
+                                <div class="detail-row" style="display: flex; justify-content: space-between; padding: 0.5rem 0; border-bottom: 1px solid var(--gray-100);">
+                                    <span class="detail-label" style="color: var(--gray-500);">القسم</span>
+                                    <span class="detail-value" style="font-weight: 500;">${getDepartmentText(device.department)}</span>
+                                </div>
+                                <div class="detail-row" style="display: flex; justify-content: space-between; padding: 0.5rem 0;">
+                                    <span class="detail-label" style="color: var(--gray-500);">الموقع</span>
+                                    <span class="detail-value" style="font-weight: 500;">${device.location || '-'}</span>
+                                </div>
+                            </div>
+                            
+                            <div class="detail-section">
+                                <h4 style="color: var(--primary-color); border-bottom: 2px solid var(--primary-color); padding-bottom: 0.5rem; display: inline-block;"><i class="fas fa-wrench"></i> الصيانة</h4>
+                                <div class="detail-row" style="display: flex; justify-content: space-between; padding: 0.5rem 0; border-bottom: 1px solid var(--gray-100);">
+                                    <span class="detail-label" style="color: var(--gray-500);">آخر صيانة</span>
+                                    <span class="detail-value" style="font-weight: 500;">${device.lastMaintenance ? formatDate(device.lastMaintenance) : 'لم تتم صيانة'}</span>
+                                </div>
+                                <div class="detail-row" style="display: flex; justify-content: space-between; padding: 0.5rem 0; border-bottom: 1px solid var(--gray-100);">
+                                    <span class="detail-label" style="color: var(--gray-500);">نوع الصيانة الأخيرة</span>
+                                    <span class="detail-value" style="font-weight: 500;">${device.lastMaintenanceType || '-'}</span>
+                                </div>
+                                <div class="detail-row" style="display: flex; justify-content: space-between; padding: 0.5rem 0;">
+                                    <span class="detail-label" style="color: var(--gray-500);">الصيانة القادمة</span>
+                                    <span class="detail-value" style="font-weight: 500;">${device.nextMaintenance ? formatDate(device.nextMaintenance) : 'غير محدد'}</span>
+                                </div>
+                            </div>
+                            
+                            <div class="detail-section">
+                                <h4 style="color: var(--primary-color); border-bottom: 2px solid var(--primary-color); padding-bottom: 0.5rem; display: inline-block;"><i class="fas fa-file-contract"></i> الضمان</h4>
+                                <div class="detail-row" style="display: flex; justify-content: space-between; padding: 0.5rem 0; border-bottom: 1px solid var(--gray-100);">
+                                    <span class="detail-label" style="color: var(--gray-500);">تاريخ الشراء</span>
+                                    <span class="detail-value" style="font-weight: 500;">${device.purchaseDate ? formatDate(device.purchaseDate) : '-'}</span>
+                                </div>
+                                <div class="detail-row" style="display: flex; justify-content: space-between; padding: 0.5rem 0; border-bottom: 1px solid var(--gray-100);">
+                                    <span class="detail-label" style="color: var(--gray-500);">انتهاء الضمان</span>
+                                    <span class="detail-value" style="font-weight: 500;">${device.warrantyExpiry ? formatDate(device.warrantyExpiry) : '-'}</span>
+                                </div>
+                                <div class="detail-row" style="display: flex; justify-content: space-between; padding: 0.5rem 0;">
+                                    <span class="detail-label" style="color: var(--gray-500);">حالة الضمان</span>
+                                    <span class="detail-value" style="font-weight: 500; color: ${warrantyActive ? 'var(--success-color)' : 'var(--danger-color)'};">
+                                        ${warrantyActive ? 'ساري' : 'منتهي'}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        ${device.notes ? `
+                        <div class="detail-section full-width" style="margin-top: 1.5rem;">
+                            <h4 style="color: var(--primary-color); border-bottom: 2px solid var(--primary-color); padding-bottom: 0.5rem; display: inline-block;"><i class="fas fa-sticky-note"></i> ملاحظات</h4>
+                            <p style="background: var(--gray-50); padding: 1rem; border-radius: var(--radius); margin-top: 0.5rem;">${device.notes}</p>
+                        </div>
+                        ` : ''}
+                        
+                        <div class="detail-section full-width" style="margin-top: 1.5rem;">
+                            <h4 style="color: var(--primary-color); border-bottom: 2px solid var(--primary-color); padding-bottom: 0.5rem; display: inline-block;"><i class="fas fa-history"></i> سجل الصيانة</h4>
+                            <div class="maintenance-history" style="margin-top: 1rem; max-height: 250px; overflow-y: auto;">
+                                ${maintenanceHistory.length > 0 ? 
+                                    maintenanceHistory.slice(0, 5).map(record => `
+                                        <div class="history-item" style="display: flex; align-items: center; gap: 1rem; padding: 0.75rem; border-bottom: 1px solid var(--gray-100);">
+                                            <div class="history-icon" style="width: 36px; height: 36px; border-radius: 50%; background: var(--primary-color); color: white; display: flex; align-items: center; justify-content: center;">
+                                                <i class="fas fa-wrench"></i>
+                                            </div>
+                                            <div style="flex: 1;">
+                                                <div class="history-date" style="font-size: 0.8rem; color: var(--gray-500);">${formatDate(record.date)}</div>
+                                                <div class="history-type" style="font-weight: 600;">${record.type}</div>
+                                                <div class="history-desc" style="font-size: 0.85rem; color: var(--gray-600);">${record.notes || ''}</div>
+                                            </div>
+                                            <div class="history-engineer" style="font-size: 0.85rem; color: var(--gray-500);">${record.technician}</div>
+                                        </div>
+                                    `).join('')
+                                    : '<p style="text-align: center; color: var(--gray-500); padding: 1rem;">لا يوجد سجل صيانة</p>'
+                                }
+                            </div>
+                        </div>
+                        
+                        <div style="margin-top: 1.5rem; display: flex; gap: 0.75rem; justify-content: flex-end;">
+                            ${currentUser.role !== 'inventory_manager' ? `
+                                <button class="btn btn-warning" onclick="closeModal('deviceModal'); openReportModal('${device.id}', '${device.name}');">
+                                    <i class="fas fa-exclamation-triangle"></i>
+                                    طلب صيانة
+                                </button>
+                            ` : ''}
+                            <button class="btn btn-secondary" onclick="closeModal('deviceModal')">
+                                إغلاق
+                            </button>
+                        </div>
+                    </div>
+                `;
+                
+                openModal('deviceModal');
+            } catch (error) {
+                showToast('خطأ في تحميل تفاصيل الجهاز', 'error');
+            }
+        }
+
+        function openReportModal(deviceId, deviceName) {
+            document.getElementById('reportDeviceId').value = deviceId;
+            document.getElementById('reportDeviceName').value = deviceName;
+            document.getElementById('reportForm').reset();
+            document.getElementById('reportDeviceName').value = deviceName;
+            openModal('reportModal');
+        }
+
+        async function submitReport(event) {
+            event.preventDefault();
+            
+            const deviceId = document.getElementById('reportDeviceId').value;
+            const devices = JSON.parse(localStorage.getItem('devices') || '[]');
+            const device = devices.find(d => d.id === deviceId);
+            
+            const newRequest = {
+                id: 'MR' + Date.now().toString(36).toUpperCase(),
+                deviceId: deviceId,
+                deviceName: device ? device.name : '',
+                serialNumber: device ? device.serialNumber : '',
+                department: device ? device.department : currentUser.department,
+                issueType: document.getElementById('reportType').value,
+                description: document.getElementById('reportDescription').value,
+                priority: document.getElementById('reportPriority').value,
+                status: 'pending',
+                requestedBy: currentUser.name,
+                requestDate: new Date().toISOString().split('T')[0],
+                assignedTo: null,
+                startDate: null,
+                completedDate: null,
+                notes: '',
+                partsUsed: [],
+                hasAlternative: true,
+                images: []
+            };
+
+            // Save to localStorage
+            const requests = JSON.parse(localStorage.getItem('maintenanceRequests') || '[]');
+            requests.unshift(newRequest);
+            localStorage.setItem('maintenanceRequests', JSON.stringify(requests));
+
+            // Add notification
+            const notifications = JSON.parse(localStorage.getItem('notifications') || '[]');
+            notifications.unshift({
+                id: 'N' + Date.now().toString(36).toUpperCase(),
+                type: 'maintenance',
+                title: 'طلب صيانة جديد',
+                message: 'تم إنشاء طلب صيانة لجهاز ' + newRequest.deviceName,
+                date: new Date().toISOString(),
+                read: false,
+                forRoles: ['engineer', 'admin']
+            });
+            localStorage.setItem('notifications', JSON.stringify(notifications));
+
+            showToast('تم إرسال البلاغ بنجاح', 'success');
+            closeModal('reportModal');
+            loadDevices();
+        }
+
+        function openReserveModal(deviceId, deviceName) {
+            document.getElementById('reserveDeviceId').value = deviceId;
+            document.getElementById('reserveDeviceName').value = deviceName;
+            document.getElementById('reserveForm').reset();
+            document.getElementById('reserveDeviceName').value = deviceName;
+            
+            // Set minimum date to now
+            const now = new Date().toISOString().slice(0, 16);
+            document.getElementById('reserveStartDate').min = now;
+            document.getElementById('reserveEndDate').min = now;
+            
+            openModal('reserveModal');
+        }
+
+        async function submitReservation(event) {
+            event.preventDefault();
+            
+            const startDate = new Date(document.getElementById('reserveStartDate').value);
+            const endDate = new Date(document.getElementById('reserveEndDate').value);
+            
+            if (endDate <= startDate) {
+                showToast('تاريخ النهاية يجب أن يكون بعد تاريخ البداية', 'error');
+                return;
+            }
+
+            const reservationData = {
+                deviceId: document.getElementById('reserveDeviceId').value,
+                startDate: startDate.toISOString(),
+                endDate: endDate.toISOString(),
+                reason: document.getElementById('reserveReason').value
+            };
+
+            try {
+                await apiService.createReservation(reservationData);
+                showToast('تم حجز الجهاز بنجاح', 'success');
+                closeModal('reserveModal');
+                loadDevices();
+            } catch (error) {
+                showToast('خطأ في حجز الجهاز', 'error');
+            }
+        }
+
+        function showLoading(show) {
+            document.getElementById('loadingState').style.display = show ? 'flex' : 'none';
+            document.getElementById('devicesContainer').style.display = show ? 'none' : 'block';
+        }
+    </script>
+</body>
+</html>
